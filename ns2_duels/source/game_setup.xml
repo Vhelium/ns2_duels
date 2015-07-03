@@ -1,8 +1,7 @@
 <game>
-    <name>ns2</name>
+    <name>ns2_duels</name>
     <description>NS2 Duels</description>
-    <client>lua/ModClient.lua</client>
-    <predict>lua/ModPredict.lua</predict>
-    <server>lua/ModServer.lua</server>
-    <loading>lua/Loading.lua</loading>
+	<client>lua/Client.lua</client>
+	<server>lua/Server.lua</server>
+	<loading>lua/Loading.lua</loading>
 </game>

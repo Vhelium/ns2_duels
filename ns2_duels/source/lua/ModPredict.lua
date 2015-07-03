@@ -1,1 +1,0 @@
-Script.Load("lua/ModShared.lua")
