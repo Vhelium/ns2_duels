@@ -16,7 +16,7 @@ function RoomSpawn:OnCreate()
     
     self:SetUpdates(false)
 
-    Shared.Message('Creating RoomSpawn.. #######################################################')
+    Shared.Message('Creating RoomSpawn..')
 end
 
 function RoomSpawn:GetIsMapEntity()

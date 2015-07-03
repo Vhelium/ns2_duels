@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+  <file>
+    <filename>source\lua\DuelCommands_Server.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ModClient.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ModPredict.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ModServer.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ModShared.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\RoomSpawn.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\UberShotgun.lua</filename>
+  </file>
+</project>
