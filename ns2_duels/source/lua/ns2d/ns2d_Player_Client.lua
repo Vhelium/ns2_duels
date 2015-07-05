@@ -53,7 +53,7 @@ function Marine:Buy()
 
                 // open the buy menu
                 self.combatBuy = true
-                self.buyMenu = GetGUIManager():CreateGUIScript("Hud/Marine/ns2d_GUIMarineBuyMenu")
+                self.buyMenu = GetGUIManager():CreateGUIScript("Hud/ns2d_GUIMarineBuyMenu")
                 g_MarineBuyMenu = self.buyMenu
                 MouseTracker_SetIsVisible(true, "ui/Cursor_MenuDefault.dds", true)
             else

@@ -49,7 +49,6 @@ function ns2d_GUIMarineBuyMenu:Initialize()
     self:_InitializeBackground()
     self:_InitializeCloseButton()
 
-    // note: items buttons get initialized through SetHostStructure()
     MarineBuy_OnOpen() //play sound
     
 end

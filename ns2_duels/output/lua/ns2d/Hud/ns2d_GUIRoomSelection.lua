@@ -1,5 +1,7 @@
 // ns2d_GUIRoomSelection.lua
 
+Script.Load("lua/GUIAnimatedScript.lua")
+
 class 'ns2d_GUIRoomSelection' (GUIAnimatedScript)
 
 ns2d_GUIRoomSelection.kBackgroundTexture = "ui/room_background_texture.dds"
