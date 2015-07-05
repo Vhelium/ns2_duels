@@ -3,4 +3,4 @@ source_dir  = "source"
 output_dir  = "output"
 description = [=[ns2duels]=]
 image       = "preview.jpg"
-publish_id = "1c4779ad"
+publish_id = "1c4bc7cd"

@@ -15,8 +15,6 @@ function RoomSpawn:OnCreate()
     self:SetPropagate(Entity.Propagate_Never)
     
     self:SetUpdates(false)
-
-    Shared.Message('Creating RoomSpawn..')
 end
 
 function RoomSpawn:GetIsMapEntity()

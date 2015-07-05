@@ -1,1 +1,0 @@
-Shared.Message('Hello World')

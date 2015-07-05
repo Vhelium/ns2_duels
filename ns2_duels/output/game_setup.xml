@@ -1,7 +1,0 @@
-<game>
-    <name>ns2_duels</name>
-    <description>NS2 Duels</description>
-	<client>lua/Client.lua</client>
-	<server>lua/Server.lua</server>
-	<loading>lua/Loading.lua</loading>
-</game>
