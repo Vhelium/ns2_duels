@@ -1,3 +1,5 @@
+duelBioMassLevel = 1
+
 function OnBiomassTo(value)
 
     Shared.Message('setting Biomass to: '..value)

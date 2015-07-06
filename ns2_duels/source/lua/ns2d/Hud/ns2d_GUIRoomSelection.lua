@@ -1,19 +1,31 @@
-// ns2d_GUIRoomSelection.lua
 
-Script.Load("lua/GUIAnimatedScript.lua")
+local function initializeRoomSpawnUI (self)
 
-class 'ns2d_GUIRoomSelection' (GUIAnimatedScript)
-
-ns2d_GUIRoomSelection.kBackgroundTexture = "ui/room_background_texture.dds"
-
-ns2d_GUIRoomSelection.kFont = Fonts.kAgencyFB_Small
-
-ns2d_GUIRoomSelection.kSmallIconSize = GUIScale( Vector(80, 80, 0) )
-
-function combat_GUIMarineBuyMenu:SetHostStructure(hostStructure)
-
-    self.hostStructure = hostStructure
-    //self:_InitializeItemButtons()
-    //self.selectedItem = nil
+    self.button = GUICreateButtonIcon("Drop")
+    self.button:SetAnchor(GUIItem.Left, GUIItem.Bottom)
+    self.button:SetPosition(GUIScale(Vector(180, 120, 0)))
+    self.content:AddChild(self.button)
     
+    self.text = GetGUIManager():CreateTextItem()
+    self.text:SetAnchor(GUIItem.Middle, GUIItem.Bottom)
+    self.text:SetTextAlignmentX(GUIItem.Align_Center)
+    self.text:SetTextAlignmentY(GUIItem.Align_Center)
+    self.text:SetText(Locale.ResolveString("EJECT_FROM_EXO"))
+    self.text:SetPosition(GUIScale(Vector(0, 20, 0)))
+    self.text:SetScale(GUIScale(Vector(1, 1, 1)))
+    self.text:SetFontName(Fonts.kAgencyFB_Small)
+    self.text:SetColor(kMarineFontColor)
+
+    self.button:AddChild(self.text)
+    self.button:SetIsVisible(true)
 end
+
+local original_InitializeBackgroundRines = Class_ReplaceMethod("ns2d_GUIMarineBuyMenu", "_InitializeBackground", function (self)
+	original_InitializeBackgroundRines()
+	initializeRoomSpawnUI()
+end)
+
+local original_InitializeBackgroundAliens = Class_ReplaceMethod("GUIAlienBuyMenu", "_InitializeBackground", function (self)
+	original_InitializeBackgroundAliens()
+	initializeRoomSpawnUI()
+end)

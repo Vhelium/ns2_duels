@@ -42,7 +42,11 @@ Class_ReplaceMethod("Alien", "Buy", function(self)
 end)
 
 // starting the custom buy menu for marines
-//Class_ReplaceMethod("Player", "Buy", function(self)
+function JetpackMarine:Buy()
+   Marine.Buy(self)
+end
+
+// starting the custom buy menu for marines
 function Marine:Buy()
    // Dont allow display in the ready room, or as phantom
     if Client.GetLocalPlayer() == self then
@@ -63,7 +67,18 @@ function Marine:Buy()
             end
         end
     end
-end //)
+end
+
+local originalHandleButtons
+originalHandleButtons = Class_ReplaceMethod("Exo", "HandleButtons", 
+function(self, input)
+    originalHandleButtons(self, input)
+
+    if bit.band(input.commands, Move.Buy) ~= 0 then
+        self:CloseMenu()
+        Marine.Buy(self)
+    end
+end)
 
 // costum CloseMenu that our buy menu will not be closed all the time (cause no structure is nearby)
 function CloseMenu_Hook(self, closeCombatBuy)
