@@ -1,13 +1,14 @@
 decoda_name = "Client"
+Script.Load("lua/ns2d/ns2d_Shared.lua")
+
 Script.Load("lua/ns2d/ns2d_Utility.lua")
 Script.Load("lua/ns2d/ns2d_Player_Client.lua")
 Script.Load("lua/ns2d/ns2d_Armory_Client.lua")
 
-Script.Load("lua/ns2d/Hud/ns2d_GUIMarineBuyMenu.lua")
+local function OnLoadComplete()
+	Shared.ConsoleCommand("cheats 1")
+	Shared.Message("OnLoadComplete. Now loading custom GUI...")
+	Script.Load("lua/ns2d/ns2d_GUIScripts.lua")
+end
 
-local RemoveScripts = GetLocalFunction(ClientUI.EvaluateUIVisibility, 'RemoveScripts' )
-local kShowAsClass = GetLocalFunction(RemoveScripts, 'kShowAsClass')
-local kShowOnTeam = GetLocalFunction(RemoveScripts, 'kShowOnTeam')
-
-kShowAsClass["Marine"]["ns2d/ns2d_Marine_Class_Hook"] = true
-kShowAsClass["Alien"]["ns2d/ns2d_Alien_Class_Hook"] = true
+Event.Hook("LoadComplete", OnLoadComplete)

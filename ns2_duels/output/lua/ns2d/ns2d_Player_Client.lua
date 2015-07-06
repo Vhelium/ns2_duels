@@ -13,8 +13,6 @@ Class_ReplaceMethod("Alien", "Buy", function(self)
         if self:GetTeamNumber() ~= 0 and not self:isa("Embryo") then
         
             if not self.buyMenu then
-
-                Shared.Message("Alien buy menu opened..")
             
 				self.combatBuy = true
                 self.buyMenu = GetGUIManager():CreateGUIScript("GUIAlienBuyMenu")
@@ -22,7 +20,6 @@ Class_ReplaceMethod("Alien", "Buy", function(self)
                 MouseTracker_SetIsVisible(true, "ui/Cursor_MenuDefault.dds", true)
                 
             else
-                Shared.Message("Alien buy menu closed..")
 				self.combatBuy = false
                 self:CloseMenu(true)
 				
@@ -53,7 +50,6 @@ function Marine:Buy()
         if self:GetTeamNumber() ~= 0 then
         
             if not self.buyMenu then
-                Shared.Message("Marine buy menu opened..")
 
                 // open the buy menu
                 self.combatBuy = true
@@ -61,7 +57,6 @@ function Marine:Buy()
                 g_MarineBuyMenu = self.buyMenu
                 MouseTracker_SetIsVisible(true, "ui/Cursor_MenuDefault.dds", true)
             else
-                Shared.Message("Marine buy menu closed..")
                 self.combatBuy = false
                 self:CloseMenu()
             end

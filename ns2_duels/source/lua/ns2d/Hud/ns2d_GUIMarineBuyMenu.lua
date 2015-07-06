@@ -68,7 +68,6 @@ function ns2d_GUIMarineBuyMenu:Initialize()
     self:_InitializeUpgradeButtons()
 
     MarineBuy_OnOpen() //play sound
-    
 end
 
 function ns2d_GUIMarineBuyMenu:_InitializeFields()
