@@ -1,5 +1,4 @@
 // Misc
-Script.Load("lua/PreLoadMod.lua")
 
 Script.Load("lua/ns2d/ns2d_Duel_Server.lua")
 Script.Load("lua/ns2d/ns2d_Armory.lua")

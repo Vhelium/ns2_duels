@@ -1,7 +1,5 @@
 
-Script.Load("lua/GUIAlienBuyMenu.lua")
-
-local function initializeRoomSpawnUI (self)
+function initializeRoomSpawnUI (self)
 
     self.button = GUICreateButtonIcon("Drop")
     self.button:SetAnchor(GUIItem.Left, GUIItem.Bottom)
@@ -21,13 +19,3 @@ local function initializeRoomSpawnUI (self)
     self.button:AddChild(self.text)
     self.button:SetIsVisible(true)
 end
-
-local original_InitializeBackgroundRines = Class_ReplaceMethod("ns2d_GUIMarineBuyMenu", "_InitializeBackground", function (self)
-	original_InitializeBackgroundRines()
-	initializeRoomSpawnUI()
-end)
-
-local original_InitializeBackgroundAliens = Class_ReplaceMethod("GUIAlienBuyMenu", "_InitializeBackground", function (self)
-	original_InitializeBackgroundAliens()
-	initializeRoomSpawnUI()
-end)
