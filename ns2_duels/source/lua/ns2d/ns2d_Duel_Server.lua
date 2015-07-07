@@ -128,7 +128,7 @@ function respawnDuelPlayer(player)
 		local roomSpawns = Shared.GetEntitiesWithClassname("RoomSpawn")
         for index, spawn in ientitylist(roomSpawns) do
 
-            if tostring(spawn:GetId()) == tostring(getRoomManager().duelCurrentRoom) and tostring(spawn:GetTeamNr()) == tostring(player:GetTeamNumber()) then
+            if tostring(spawn:GetId()) == tostring(RoomManager.duelCurrentRoom) and tostring(spawn:GetTeamNr()) == tostring(player:GetTeamNumber()) then
                 respawnLoc = spawn:GetOrigin()
                 Shared.Message('Room Spawn found.')
                 break

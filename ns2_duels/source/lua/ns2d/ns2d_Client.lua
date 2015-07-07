@@ -1,7 +1,9 @@
 decoda_name = "Client"
 Script.Load("lua/ns2d/ns2d_Shared.lua")
-
 Script.Load("lua/ns2d/ns2d_Utility.lua")
+
+Script.Load( "lua/ns2d/ns2d_RoomManager_Client.lua")
+
 Script.Load("lua/ns2d/ns2d_Player_Client.lua")
 Script.Load("lua/ns2d/ns2d_Armory_Client.lua")
 

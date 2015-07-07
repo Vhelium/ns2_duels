@@ -4,7 +4,7 @@ local function OnRoom(client, id)
         local roomId = tonumber(id)
 
         Shared.Message('Joining Room #'..id)
-        getRoomManager().duelCurrentRoom = id
+        RoomManager.duelCurrentRoom = id
 
         local originMarine
         local originAlien
@@ -40,7 +40,7 @@ local function OnRoom(client, id)
 end
 
 local function OnRoomCurrent()
-    Shared.Message('Current Room: #'..getRoomManager().duelCurrentRoom)
+    Shared.Message('Current Room: #'..RoomManager.duelCurrentRoom)
 end
 
 local function OnRoomTest(client, id)
@@ -83,6 +83,16 @@ local function OnBiomass(client, value)
     OnBiomassTo(tonumber(value))
 end
 
+local function OnPrintRooms()
+    for grpId, grp in pairs(RoomManager.playersInGroup) do
+        Shared.Message('Group '..grpId..' (Room '..RoomManager:GetRoomFromGroup(grpId)..'):')
+        for pId, cl in pairs(RoomManager.playersInGroup[grpId]) do
+            Shared.Message('    Player #'..pId)
+        end
+        Shared.Message('  ')
+    end
+end
+
 Event.Hook("Console_room", OnRoom)
 
 Event.Hook("Console_a0", Ona0)
@@ -98,3 +108,4 @@ Event.Hook("Console_biomass", OnBiomass)
 
 Event.Hook("Console_roomtest", OnRoomTest)
 Event.Hook("Console_roomcurrent", OnRoomCurrent)
+Event.Hook("Console_rooms", OnPrintRooms)
