@@ -1,6 +1,12 @@
 name        = "NS2 Duels"
 source_dir  = "source"
 output_dir  = "output"
-description = [=[ns2duels]=]
+description = [=[== Work In Progress ==
+
+ns2_duels is a mod for 1v1 practice matches.
+Select you prefered upgrades / weapons / lifeforms over the UI and start the Duels.
+Change you fighting environment by selecting a Duel Room over the UI.
+
+== Work In Progress ==]=]
 image       = "preview.jpg"
 publish_id = "1c4bc7cd"
