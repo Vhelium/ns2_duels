@@ -4,7 +4,7 @@ local function OnRoom(client, id)
         local roomId = tonumber(id)
 
         Shared.Message('Joining Room #'..id)
-        duelCurrentRoom = id
+        getRoomManager().duelCurrentRoom = id
 
         local originMarine
         local originAlien
@@ -40,7 +40,7 @@ local function OnRoom(client, id)
 end
 
 local function OnRoomCurrent()
-    Shared.Message('Current Room: #'..duelCurrentRoom)
+    Shared.Message('Current Room: #'..getRoomManager().duelCurrentRoom)
 end
 
 local function OnRoomTest(client, id)
