@@ -123,7 +123,6 @@ function RoomSpawnUI_HandleItemClicked(self, mouseX, mouseY)
             self.closingMenu = true
             self:OnClose()
 
-            //Shared.ConsoleCommand("room "..item.RoomId)
             Client.SendNetworkMessage( "RoomJoinRoom", { RoomId = item.RoomId } , true )
 
             return true, true

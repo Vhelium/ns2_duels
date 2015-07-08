@@ -39,8 +39,8 @@ local function OnRoom(client, id)
     
 end
 
-local function OnRoomCurrent()
-    Shared.Message('Current Room: #'..RoomManager.duelCurrentRoom)
+local function OnRoomCurrent(client)
+    Shared.Message('Current Room for player '..client:GetUserId()..': #'..RoomManager:GetCurrentRoomForPlayer(client:GetUserId()))
 end
 
 local function OnRoomTest(client, id)
@@ -93,7 +93,7 @@ local function OnPrintRooms()
     end
 end
 
-Event.Hook("Console_room", OnRoom)
+--Event.Hook("Console_room", OnRoom)
 
 Event.Hook("Console_a0", Ona0)
 Event.Hook("Console_a1", Ona1)

@@ -1,8 +1,8 @@
 
 Script.Load( "lua/ns2d/ns2d_RoomManager.lua")
 
+RoomManager.existsEmptyGroup = false
 RoomManager.roomSpawns = { } -- list (indexed by room) with spawn origins for rines[1] and aliens[2]
-RoomManager.duelCurrentRoom = -1
 RoomManager.playersInGroup = { }
 RoomManager.groupInRoom = { }
 
@@ -63,6 +63,12 @@ function RoomManager:LeaveGroup(client)
 		Server.SendNetworkMessage("RoomPlayerLeftGroup", { PlayerId = playerId, GroupId = prevGroup })
 
 		Shared.Message("Player["..playerId.."] left Group #"..prevGroup)
+
+		-- Check if group is empty now:
+		if #self.playersInGroup[prevGroup] == 0 then -- no more players
+			self:LeaveRoomAsGroup(prevGroup)
+			self.playersInGroup[prevGroup] = nil
+		end
 	end
 end
 
@@ -70,7 +76,16 @@ function RoomManager:JoinRoomAsGroup(client, roomId)
 	local playerId = client:GetUserId()
 	local groupId = self:GetGroupFromPlayer(playerId)
 
-	if self.groupInRoom[roomId] ~= nil then -- check if room is available
+	if groupId == -1 then								-- Player not in a group
+		if self.groupInRoom[roomId] ~= nil then 		-- Room is taken by a group
+			self:JoinGroup(client, groupInRoom[roomId])
+			return -- JoinGroup will handle the teleport
+		else 											-- Assign the player to a new (empty) group and join the room
+			groupId = self:GetNewEmptyGroup()
+			self:JoinGroup(client, groupId)
+			-- do not return --> later code will handle room-joining
+		end
+	elseif self.groupInRoom[roomId] ~= nil then -- check if room is available
 		Shared.Message("Room "..roomId.." is already occupied by Group "..self.groupInRoom[roomId])
 		return
 	end
@@ -116,7 +131,8 @@ end
 -------------------------------------[ (DIS-)CONNECTING ]---------------------------------------------------------
 
 local function OnClientConnect( client )
-	RoomManager:JoinGroup(client, 1)
+	--RoomManager:JoinGroup(client, 1)
+	-- New Players are not assigned to a group by default
 end
 Event.Hook( "ClientConnect", OnClientConnect )
 
@@ -124,6 +140,10 @@ local function OnClientDisconnect( client )
 	RoomManager:LeaveGroup(client)
 end
 Event.Hook( "ClientDisconnect", OnClientDisconnect )
+
+-------------------------------------[ HOOKS ] -------------------------------------------------------------------
+
+
 
 -------------------------------------[ HELPER FUNCTIONS ] --------------------------------------------------------
 
@@ -149,9 +169,35 @@ function RoomManager:GetGroupFromPlayer(playerId)
 	return -1
 end
 
+function RoomManager:GetCurrentRoomForPlayer(playerId)
+	return self:GetRoomFromGroup(self:GetGroupFromPlayer(playerId)) -- try to find current room from player
+end
+
+function RoomManager:GetSpawnOrigin(player, roomId)
+	if roomId == nil or roomId == -1 then
+		local owner = Server.GetOwner(player) -- the client object
+		if owner then
+			roomId = self:GetCurrentRoomForPlayer(owner:GetUserId())
+		end
+	end
+	-- TODO: check if RoomId ~= -1
+	return RoomManager.roomSpawns[roomId][player:GetTeamNumber()]
+end
+
 function RoomManager:SpawnPlayerInRoom(client, roomId)
 	local player = client:GetControllingPlayer()
-	if RoomManager.roomSpawns[roomId][player:GetTeamNumber()] ~= nil then
-		player:SetOrigin(RoomManager.roomSpawns[roomId][player:GetTeamNumber()]) -- set Player's origin to corresponding room spawn
+	local spawn = self:GetSpawnOrigin(player, roomId)
+	if spawn ~= nil then
+		player:SetOrigin(spawn) -- set Player's origin to corresponding room spawn
+	end
+end
+
+kMaxGroupIteration = 200
+function RoomManager:GetNewEmptyGroup(client)
+	for i=1, kMaxGroupIteration, 1 do
+		if self.playersInGroup[i] == nil or #self.playersInGroup[i] == 0 then -- empty group found
+			self.playersInGroup[i] = { }
+			return i;
+		end
 	end
 end

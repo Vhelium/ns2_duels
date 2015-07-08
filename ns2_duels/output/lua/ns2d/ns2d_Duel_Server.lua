@@ -124,16 +124,7 @@ function respawnDuelPlayer(player)
             end
         end
 
-        local respawnLoc
-		local roomSpawns = Shared.GetEntitiesWithClassname("RoomSpawn")
-        for index, spawn in ientitylist(roomSpawns) do
-
-            if tostring(spawn:GetId()) == tostring(RoomManager.duelCurrentRoom) and tostring(spawn:GetTeamNr()) == tostring(player:GetTeamNumber()) then
-                respawnLoc = spawn:GetOrigin()
-                Shared.Message('Room Spawn found.')
-                break
-            end
-        end
+        local respawnLoc = RoomManager:GetSpawnOrigin(player)
 
         local func = OnCommandChangeClass2(player.lastClass, teamNumber, extraValues, respawnLoc)
         func(player)
