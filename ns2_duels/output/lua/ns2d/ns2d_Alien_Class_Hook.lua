@@ -15,3 +15,9 @@ original_SendKeyEventAliens = Class_ReplaceMethod("GUIAlienBuyMenu", "SendKeyEve
 	end
 	return roomRes
 end)
+
+local original_UpdateAliens
+original_UpdateAliens = Class_ReplaceMethod("GUIAlienBuyMenu", "Update", function (self, deltaTime)
+	original_UpdateAliens(self, deltaTime)
+	RoomSpawnUI_Update(self, deltaTime)
+end)

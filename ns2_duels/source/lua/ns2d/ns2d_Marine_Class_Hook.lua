@@ -15,3 +15,9 @@ original_SendKeyEventMarines = Class_ReplaceMethod("ns2d_GUIMarineBuyMenu", "Sen
 	end
 	return roomRes
 end)
+
+local original_UpdateMarines
+original_UpdateMarines = Class_ReplaceMethod("ns2d_GUIMarineBuyMenu", "Update", function (self, deltaTime)
+	original_UpdateMarines(self, deltaTime)
+	RoomSpawnUI_Update(self, deltaTime)
+end)

@@ -389,10 +389,10 @@ function ns2d_GUIMarineBuyMenu:_HandleItemClicked(mouseX, mouseY)
                 
                 if item.UpgrTechId == 0 then                                 // Heal 
                     Shared.ConsoleCommand("heal 3000")
-                    Client.SendNetworkMessage( "RoomJoinGroup", { GroupId = 1 } , true )
+                    //Client.SendNetworkMessage( "RoomJoinGroup", { GroupId = 1 } , true )
                 elseif item.UpgrTechId == 1 then                             // catpack
                     Shared.ConsoleCommand("catpack")
-                    Client.SendNetworkMessage( "RoomJoinGroup", { GroupId = 2 } , true )
+                    //Client.SendNetworkMessage( "RoomJoinGroup", { GroupId = 2 } , true )
                 elseif item.UpgrTechId == 2 then                             // nanoshield
                     Shared.ConsoleCommand("nanoshield")
                 elseif item.UpgrTechId >= 4 and item.UpgrTechId <= 7 then    // a0-a3

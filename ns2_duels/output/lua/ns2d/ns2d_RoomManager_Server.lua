@@ -1,10 +1,9 @@
 
-Script.Load( "lua/ns2d/ns2d_RoomManager.lua")
+Script.Load("lua/ns2d/ns2d_RoomManager.lua")
+Script.Load("lua/ServerSponitor.lua")
 
 RoomManager.existsEmptyGroup = false
 RoomManager.roomSpawns = { } -- list (indexed by room) with spawn origins for rines[1] and aliens[2]
-RoomManager.playersInGroup = { }
-RoomManager.groupInRoom = { }
 
 local function OnMapPostLoad()
 	RoomManager.roomSpawns = { } -- clear out old spawns
@@ -15,7 +14,7 @@ local function OnMapPostLoad()
         local teamNr = spawn:GetTeamNr()
         local spawn = spawn:GetOrigin()
         
-        if roomId ~= -1 and (teamNr == 1 or teamNr == 2) and spawn ~= nil then
+        if (teamNr == 1 or teamNr == 2) and spawn ~= nil then
         	if RoomManager.roomSpawns[roomId] == nil then
         		RoomManager.roomSpawns[roomId] = { }
         	end
@@ -25,29 +24,46 @@ local function OnMapPostLoad()
 end
 Event.Hook("MapPostLoad", OnMapPostLoad)
 
+local original_OnJoinTeam
+original_OnJoinTeam = Class_ReplaceMethod("ServerSponitor", "OnJoinTeam", function (self, player, team)
+	original_OnJoinTeam(self, player, team)
+	-- Leave the Group if it's ready room:
+	if team:GetTeamNumber() == kTeamReadyRoom then
+		Shared.Message("SERVER: Player["..player:GetId().."] joined Ready Room")
+		local owner = Server.GetOwner(player) -- the client object
+		if owner then
+			RoomManager:LeaveGroup(owner)
+		end
+	end
+end)
+
 function RoomManager:JoinGroup(client, groupId)
 	local playerId = client:GetUserId()
 	local prevGroup = self:GetGroupFromPlayer(playerId)
-	if prevGroup ~= -1 then
-		self.playersInGroup[prevGroup][playerId] = nil
+
+	if groupId ~= -1 and prevGroup == groupId then -- Player wants to join same grp
+		Shared.Message("SERVER: Player["..playerId.."] is already in group "..groupId)
+		return
+	elseif prevGroup ~= -1 then  -- Player was already in another grp  before
+		self:LeaveGroup(client)
 	end
-	if self.playersInGroup[groupId] == nil then -- Initialize group
+
+	if groupId == -1 then -- Player wants to join a new grp
+		groupId = self:GetNewEmptyGroup()
+	end
+
+	if self.playersInGroup[groupId] == nil then -- Initialize new group
 		self.playersInGroup[groupId] = {}
 	end
 	self.playersInGroup[groupId][playerId] = client
 
-	if prevGroup ~= -1 then
-		Server.SendNetworkMessage("RoomPlayerLeftGroup", { PlayerId = playerId, GroupId = prevGroup })
-	end
-	Server.SendNetworkMessage("RoomPlayerJoinedGroup", { PlayerId = playerId, GroupId = groupId })
+	Server.SendNetworkMessage("RoomPlayerJoinedGroup", { PlayerId = playerId, GroupId = groupId, PlayerName = client:GetControllingPlayer():GetName() })
 
-	Shared.Message("Player["..playerId.."] joined Group #"..groupId)
+	Shared.Message("SERVER: Player["..playerId.."] joined Group #"..groupId)
 
-	-- 'teleport' player to corresponding Room, if any..
+	-- 'teleport' player to corresponding Room, if any (otherwise he wil spawn in base == -1)
 	local roomId = self:GetRoomFromGroup(groupId)
-	if roomId ~= -1 then
-		SpawnPlayerInRoom(client, roomId)
-	end
+	self:SpawnPlayerInRoom(client, roomId)
 end
 
 local function OnJoinGroup(client, message)
@@ -62,10 +78,11 @@ function RoomManager:LeaveGroup(client)
 		self.playersInGroup[prevGroup][playerId] = nil
 		Server.SendNetworkMessage("RoomPlayerLeftGroup", { PlayerId = playerId, GroupId = prevGroup })
 
-		Shared.Message("Player["..playerId.."] left Group #"..prevGroup)
+		Shared.Message("SERVER: Player["..playerId.."] left Group #"..prevGroup)
 
 		-- Check if group is empty now:
-		if #self.playersInGroup[prevGroup] == 0 then -- no more players
+		if #(self.playersInGroup[prevGroup]) == 0 then -- no more players
+			Shared.Message("SERVER: Group["..prevGroup.."] is now empty. Deleting..")
 			self:LeaveRoomAsGroup(prevGroup)
 			self.playersInGroup[prevGroup] = nil
 		end
@@ -86,7 +103,7 @@ function RoomManager:JoinRoomAsGroup(client, roomId)
 			-- do not return --> later code will handle room-joining
 		end
 	elseif self.groupInRoom[roomId] ~= nil then -- check if room is available
-		Shared.Message("Room "..roomId.." is already occupied by Group "..self.groupInRoom[roomId])
+		Shared.Message("SERVER: Room "..roomId.." is already occupied by Group "..self.groupInRoom[roomId])
 		return
 	end
 
@@ -107,7 +124,7 @@ function RoomManager:JoinRoomAsGroup(client, roomId)
 			self:SpawnPlayerInRoom(pClient, roomId)
 		end
 
-		Shared.Message("Group["..groupId.."] joined Room #"..roomId)
+		Shared.Message("SERVER: Group["..groupId.."] joined Room #"..roomId)
 	end
 end
 
@@ -122,7 +139,7 @@ function RoomManager:LeaveRoomAsGroup(groupId)
 		self.groupInRoom[prevRoom] = nil
 		Server.SendNetworkMessage("RoomGroupLeftRoom", { GroupId = groupId, RoomId = prevRoom })
 
-		Shared.Message("Group["..groupId.."] left Room #"..prevRoom)
+		Shared.Message("SERVER: Group["..groupId.."] left Room #"..prevRoom)
 	end
 
 	--TODO: Port to Marine/Alien base ?
@@ -147,41 +164,19 @@ Event.Hook( "ClientDisconnect", OnClientDisconnect )
 
 -------------------------------------[ HELPER FUNCTIONS ] --------------------------------------------------------
 
-function RoomManager:GetRoomFromGroup(groupId)
-	for rId, grpId in pairs(self.groupInRoom) do
-		if grpId == groupId then
-			return rId
-		end
-	end
-
-	return -1
-end
-
-function RoomManager:GetGroupFromPlayer(playerId)
-	for grpId, grp in pairs(self.playersInGroup) do
-		for pId, cl in pairs(self.playersInGroup[grpId]) do
-			if pId == playerId then
-				return grpId
-			end
-		end
-	end
-
-	return -1
-end
-
-function RoomManager:GetCurrentRoomForPlayer(playerId)
-	return self:GetRoomFromGroup(self:GetGroupFromPlayer(playerId)) -- try to find current room from player
-end
-
 function RoomManager:GetSpawnOrigin(player, roomId)
-	if roomId == nil or roomId == -1 then
+	if roomId == nil then
 		local owner = Server.GetOwner(player) -- the client object
 		if owner then
 			roomId = self:GetCurrentRoomForPlayer(owner:GetUserId())
 		end
 	end
-	-- TODO: check if RoomId ~= -1
-	return RoomManager.roomSpawns[roomId][player:GetTeamNumber()]
+
+	if RoomManager.roomSpawns[roomId] ~= nil then
+		return RoomManager.roomSpawns[roomId][player:GetTeamNumber()]
+	end
+
+	return nil
 end
 
 function RoomManager:SpawnPlayerInRoom(client, roomId)
@@ -189,13 +184,15 @@ function RoomManager:SpawnPlayerInRoom(client, roomId)
 	local spawn = self:GetSpawnOrigin(player, roomId)
 	if spawn ~= nil then
 		player:SetOrigin(spawn) -- set Player's origin to corresponding room spawn
+	else
+		Shared.Message("SERVER: No spawn found: room="..roomId..", team="..player:GetTeamNumber())
 	end
 end
 
 kMaxGroupIteration = 200
 function RoomManager:GetNewEmptyGroup(client)
 	for i=1, kMaxGroupIteration, 1 do
-		if self.playersInGroup[i] == nil or #self.playersInGroup[i] == 0 then -- empty group found
+		if self.playersInGroup[i] == nil then -- empty group found
 			self.playersInGroup[i] = { }
 			return i;
 		end

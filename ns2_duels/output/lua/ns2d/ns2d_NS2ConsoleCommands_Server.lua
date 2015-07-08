@@ -3,8 +3,7 @@ local function OnRoom(client, id)
     if client ~= nil and Shared.GetCheatsEnabled() then
         local roomId = tonumber(id)
 
-        Shared.Message('Joining Room #'..id)
-        RoomManager.duelCurrentRoom = id
+        Shared.Message('SERVER: Joining Room #'..id)
 
         local originMarine
         local originAlien
@@ -40,11 +39,11 @@ local function OnRoom(client, id)
 end
 
 local function OnRoomCurrent(client)
-    Shared.Message('Current Room for player '..client:GetUserId()..': #'..RoomManager:GetCurrentRoomForPlayer(client:GetUserId()))
+    Shared.Message('SERVER: Current Room for player '..client:GetUserId()..': #'..RoomManager:GetCurrentRoomForPlayer(client:GetUserId()))
 end
 
 local function OnRoomTest(client, id)
-    Shared.Message('Test: #'..id)
+    Shared.Message('SERVER: Test: #'..id)
 end
 
 local function Ona0()
@@ -84,16 +83,10 @@ local function OnBiomass(client, value)
 end
 
 local function OnPrintRooms()
-    for grpId, grp in pairs(RoomManager.playersInGroup) do
-        Shared.Message('Group '..grpId..' (Room '..RoomManager:GetRoomFromGroup(grpId)..'):')
-        for pId, cl in pairs(RoomManager.playersInGroup[grpId]) do
-            Shared.Message('    Player #'..pId)
-        end
-        Shared.Message('  ')
-    end
+    RoomManager:PrintRooms()
 end
 
---Event.Hook("Console_room", OnRoom)
+Event.Hook("Console_room", OnRoom)
 
 Event.Hook("Console_a0", Ona0)
 Event.Hook("Console_a1", Ona1)
