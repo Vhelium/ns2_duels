@@ -22,14 +22,14 @@ local function OnRoom(client, id)
         end
 
         if originMarine ~= nil then
-            for index, marine in ipairs(GetEntitiesForTeam("Marine", 1)) do
+            for index, marine in pairs(GetEntitiesForTeam("Marine", 1)) do
                 // port to Marine Room Spawn
                 marine:SetOrigin(originMarine)
             end
         end
 
         if originAlien ~= nil then
-            for index, alien in ipairs(GetEntitiesForTeam("Alien", 2)) do
+            for index, alien in pairs(GetEntitiesForTeam("Alien", 2)) do
                 // port to Alien Room Spawn
                 alien:SetOrigin(originAlien)
             end
