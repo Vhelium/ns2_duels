@@ -8,3 +8,5 @@ Shared.RegisterNetworkMessage( "RoomPlayerJoinedGroup", { PlayerId = "integer", 
 Shared.RegisterNetworkMessage( "RoomPlayerLeftGroup", { PlayerId = "integer", GroupId = "integer (-1 to 100)" } )
 Shared.RegisterNetworkMessage( "RoomGroupJoinedRoom", { GroupId = "integer (-1 to 100)", RoomId = "integer (-1 to 100)" } )
 Shared.RegisterNetworkMessage( "RoomGroupLeftRoom", { GroupId = "integer (-1 to 100)", RoomId = "integer (-1 to 100)" } )
+
+Shared.RegisterNetworkMessage( "RoomAddRoom", { RoomId = "integer (-1 to 100)", Description = "string (255)" } )

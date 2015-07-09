@@ -14,8 +14,6 @@ function RoomSpawnUI_Initialize(self)
         parent = self.background
     end
 
-    local roomcount = 5
-
     local backgroundTexture = "ui/marine_background_texture.dds"
     local roomTexture = "ui/combat_marine_buildmenu.dds"
 
@@ -34,12 +32,23 @@ function RoomSpawnUI_Initialize(self)
     self.groupContent:SetTexturePixelCoordinates(0, 0, widthGroups, height)
     parent:AddChild(self.groupContent)
 
+    local groupsHeading = GUIManager:CreateTextItem()
+    groupsHeading:SetFontName(Fonts.kAgencyFB_Medium)
+    groupsHeading:SetFontIsBold(true)
+    groupsHeading:SetAnchor(GUIItem.Middle, GUIItem.Top)
+    groupsHeading:SetText("Groups:")
+    groupsHeading:SetTextAlignmentX(GUIItem.Align_Center)
+    groupsHeading:SetTextAlignmentY(GUIItem.Align_Min)
+    groupsHeading:SetColor(Color(kMarineFontColor))
+    groupsHeading:SetPosition(Vector(0, 10, 0))
+    self.groupContent:AddChild(groupsHeading)
+
     RoomSpawnUI_cmdNewGroup = GUIManager:CreateGraphicItem()
-    RoomSpawnUI_cmdNewGroup:SetSize(GUIScale( Vector(160, 60, 0) ))
+    RoomSpawnUI_cmdNewGroup:SetSize(GUIScale( Vector(160, 46, 0) ))
     RoomSpawnUI_cmdNewGroup:SetAnchor(GUIItem.Center, GUIItem.Bottom)
-    RoomSpawnUI_cmdNewGroup:SetPosition(Vector(- RoomSpawnUI_cmdNewGroup:GetSize().x / 2, - RoomSpawnUI_cmdNewGroup:GetSize().y - 20, 0))
+    RoomSpawnUI_cmdNewGroup:SetPosition(Vector(- RoomSpawnUI_cmdNewGroup:GetSize().x / 2, - RoomSpawnUI_cmdNewGroup:GetSize().y - 10, 0))
     RoomSpawnUI_cmdNewGroup:SetTexture(roomTexture)
-    RoomSpawnUI_cmdNewGroup:SetTexturePixelCoordinates(4 * 80, 0, 5 * 80, 80)
+    RoomSpawnUI_cmdNewGroup:SetTexturePixelCoordinates(6 * 80, 0, 7 * 80, 80)
     self.groupContent:AddChild(RoomSpawnUI_cmdNewGroup)
 
     local newGroupText = GUIManager:CreateTextItem()
@@ -62,20 +71,20 @@ function RoomSpawnUI_Initialize(self)
     parent:AddChild(self.roomContent)
 
     local graphicItemHeading = GUIManager:CreateTextItem()
-    graphicItemHeading:SetFontName(Fonts.kAgencyFB_Small)
+    graphicItemHeading:SetFontName(Fonts.kAgencyFB_Medium)
     graphicItemHeading:SetFontIsBold(true)
     graphicItemHeading:SetAnchor(GUIItem.Middle, GUIItem.Top)
     graphicItemHeading:SetPosition(Vector(-iconSize.x/ 2, 10, 0))
     graphicItemHeading:SetTextAlignmentX(GUIItem.Align_Min)
     graphicItemHeading:SetTextAlignmentY(GUIItem.Align_Min)
     graphicItemHeading:SetColor(Color(kMarineFontColor))
-    graphicItemHeading:SetText("Select Room:")
+    graphicItemHeading:SetText("Rooms:")
     self.roomContent:AddChild(graphicItemHeading)
 
     RoomSpawnUI_roomButtons = { }
 
     // Room Buttons:
-    for roomId=1, roomcount, 1 do
+    for roomId, description in pairs(RoomManager.rooms) do
         local graphicItem = GUIManager:CreateGraphicItem()
         graphicItem:SetSize(iconSize)
         graphicItem:SetAnchor(GUIItem.Left, GUIItem.Top)
@@ -158,11 +167,11 @@ function RoomSpawnUI_Update(self, deltaTime)
             local groupPanel = GUIManager:CreateGraphicItem()
             groupPanel:SetSize(Vector(self.groupContent:GetSize().x, 1, 0))
             groupPanel:SetAnchor(GUIItem.Left, GUIItem.Top)
-            groupPanel:SetPosition(Vector(4, 4, 0))
+            groupPanel:SetPosition(Vector(4, GUIScale(50), 0))
             groupPanel:SetColor(Color(0.05, 0.05, 0.1, 0.7))
 
             local groupButton = GUIManager:CreateGraphicItem()
-            groupButton:SetSize(GUIScale( Vector(60, 60, 0) ))
+            groupButton:SetSize(GUIScale( Vector(45, 45, 0) ))
             groupButton:SetAnchor(GUIItem.Left, GUIItem.Top)
             groupButton:SetPosition(Vector(GUIScale(3), GUIScale(3), 0))
             groupButton:SetTexture(groupTexture)
@@ -187,8 +196,8 @@ function RoomSpawnUI_Update(self, deltaTime)
 
             -- PlayerlistText
             local groupPlayersText = GUIManager:CreateTextItem()
-            groupPlayersText:SetFontName(Fonts.kAgencyFB_Small)
-            groupPlayersText:SetFontIsBold(true)
+            groupPlayersText:SetFontName(Fonts.kAgencyFB_Tiny)
+            groupPlayersText:SetFontIsBold(false)
             groupPlayersText:SetAnchor(GUIItem.Left, GUIItem.Top)
             groupPlayersText:SetPosition(Vector(groupButton:GetPosition().x + groupButton:GetSize().x + 5, playerTextOffsetY, 0))
             groupPlayersText:SetTextAlignmentX(GUIItem.Align_Min)

@@ -21,6 +21,13 @@ local function OnMapPostLoad()
         	RoomManager.roomSpawns[roomId][teamNr] = spawn
     	end
     end
+
+    -- Send Rooms to player!
+    for roomId, spawns in pairs(RoomManager.roomSpawns) do
+    	if roomId ~= -1 then
+			Server.SendNetworkMessage(client, "RoomAddRoom", { RoomId = roomId, Description = "none" }, true)
+		end
+    end
 end
 Event.Hook("MapPostLoad", OnMapPostLoad)
 
@@ -57,7 +64,7 @@ function RoomManager:JoinGroup(client, groupId)
 	end
 	self.playersInGroup[groupId][playerId] = client
 
-	Server.SendNetworkMessage("RoomPlayerJoinedGroup", { PlayerId = playerId, GroupId = groupId, PlayerName = client:GetControllingPlayer():GetName() })
+	Server.SendNetworkMessage("RoomPlayerJoinedGroup", { PlayerId = playerId, GroupId = groupId, PlayerName = client:GetControllingPlayer():GetName() }, true)
 
 	Shared.Message("SERVER: Player["..playerId.."] joined Group #"..groupId)
 
@@ -76,7 +83,7 @@ function RoomManager:LeaveGroup(client)
 	local prevGroup = self:GetGroupFromPlayer(playerId)
 	if prevGroup ~= -1 then
 		self.playersInGroup[prevGroup][playerId] = nil
-		Server.SendNetworkMessage("RoomPlayerLeftGroup", { PlayerId = playerId, GroupId = prevGroup })
+		Server.SendNetworkMessage("RoomPlayerLeftGroup", { PlayerId = playerId, GroupId = prevGroup }, true)
 
 		Shared.Message("SERVER: Player["..playerId.."] left Group #"..prevGroup)
 
@@ -115,9 +122,9 @@ function RoomManager:JoinRoomAsGroup(client, roomId)
 		self.groupInRoom[roomId] = groupId
 
 		if prevRoom ~= -1 then
-			Server.SendNetworkMessage("RoomGroupLeftRoom", { GroupId = groupId, RoomId = prevRoom })
+			Server.SendNetworkMessage("RoomGroupLeftRoom", { GroupId = groupId, RoomId = prevRoom }, true)
 		end
-		Server.SendNetworkMessage("RoomGroupJoinedRoom", { GroupId = groupId, RoomId = roomId })
+		Server.SendNetworkMessage("RoomGroupJoinedRoom", { GroupId = groupId, RoomId = roomId }, true)
 
 		-- Port all players from that group to the room:
 		for pId, pClient in pairs(self.playersInGroup[groupId]) do
@@ -137,7 +144,7 @@ function RoomManager:LeaveRoomAsGroup(groupId)
 	local prevRoom = self:GetRoomFromGroup(groupId)
 	if prevRoom ~= -1 then
 		self.groupInRoom[prevRoom] = nil
-		Server.SendNetworkMessage("RoomGroupLeftRoom", { GroupId = groupId, RoomId = prevRoom })
+		Server.SendNetworkMessage("RoomGroupLeftRoom", { GroupId = groupId, RoomId = prevRoom }, true)
 
 		Shared.Message("SERVER: Group["..groupId.."] left Room #"..prevRoom)
 	end
@@ -148,8 +155,15 @@ end
 -------------------------------------[ (DIS-)CONNECTING ]---------------------------------------------------------
 
 local function OnClientConnect( client )
-	--RoomManager:JoinGroup(client, 1)
 	-- New Players are not assigned to a group by default
+
+    -- Send Rooms to player!
+    for roomId, spawns in pairs(RoomManager.roomSpawns) do
+    	if roomId ~= -1 then
+			Server.SendNetworkMessage(client, "RoomAddRoom", { RoomId = roomId, Description = "none" }, true)
+		end
+    end
+
 end
 Event.Hook( "ClientConnect", OnClientConnect )
 

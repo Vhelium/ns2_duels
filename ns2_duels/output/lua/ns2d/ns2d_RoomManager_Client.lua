@@ -1,6 +1,8 @@
 
 Script.Load("lua/ns2d/ns2d_RoomManager.lua")
 
+RoomManager.rooms = { }
+
 ----------------------------[ GROUPS ]---------------------------------------------------------
 
 function RoomManager:PlayerJoinedGroup( playerId, groupId, playerName )
@@ -66,6 +68,12 @@ local function OnGroupLeftRoom( message )
 	RoomManager:GroupLeftRoom( message.GroupId, message.RoomId )
 end
 Client.HookNetworkMessage( "RoomGroupLeftRoom", OnGroupLeftRoom )
+
+local function OnAddRoom( message )
+	RoomManager.rooms[message.RoomId] = message.Description
+	Shared.Message("CLIENT: OnAddRoom "..message.RoomId.." - "..message.Description)
+end
+Client.HookNetworkMessage( "RoomAddRoom", OnAddRoom )
 
 ------------------------------[ LOGIC ]-----------------------------------------------------------
 
