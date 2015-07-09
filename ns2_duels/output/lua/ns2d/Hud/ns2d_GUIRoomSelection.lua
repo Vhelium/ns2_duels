@@ -19,7 +19,7 @@ function RoomSpawnUI_Initialize(self)
 
     local widthGroups = GUIScale(250)
     local widthRooms = GUIScale(180)
-    local height = GUIScale(500)
+    local height = GUIScale(520)
     local offsetX = GUIScale(50)
 
     local iconSize = GUIScale( Vector(80, 80, 0) )
@@ -29,7 +29,7 @@ function RoomSpawnUI_Initialize(self)
     self.groupContent:SetAnchor(GUIItem.Right, GUIItem.Center)
     self.groupContent:SetPosition(Vector(offsetX, - parent:GetSize().y / 2, 0))
     self.groupContent:SetTexture(backgroundTexture)
-    self.groupContent:SetTexturePixelCoordinates(0, 0, widthGroups, height)
+    self.groupContent:SetTexturePixelCoordinates(0, 0, 512, 256)
     parent:AddChild(self.groupContent)
 
     local groupsHeading = GUIManager:CreateTextItem()
@@ -46,7 +46,7 @@ function RoomSpawnUI_Initialize(self)
     RoomSpawnUI_cmdNewGroup = GUIManager:CreateGraphicItem()
     RoomSpawnUI_cmdNewGroup:SetSize(GUIScale( Vector(160, 46, 0) ))
     RoomSpawnUI_cmdNewGroup:SetAnchor(GUIItem.Center, GUIItem.Bottom)
-    RoomSpawnUI_cmdNewGroup:SetPosition(Vector(- RoomSpawnUI_cmdNewGroup:GetSize().x / 2, - RoomSpawnUI_cmdNewGroup:GetSize().y - 10, 0))
+    RoomSpawnUI_cmdNewGroup:SetPosition(Vector(- RoomSpawnUI_cmdNewGroup:GetSize().x / 2, - RoomSpawnUI_cmdNewGroup:GetSize().y - 15, 0))
     RoomSpawnUI_cmdNewGroup:SetTexture(roomTexture)
     RoomSpawnUI_cmdNewGroup:SetTexturePixelCoordinates(6 * 80, 0, 7 * 80, 80)
     self.groupContent:AddChild(RoomSpawnUI_cmdNewGroup)
@@ -67,7 +67,7 @@ function RoomSpawnUI_Initialize(self)
     self.roomContent:SetAnchor(GUIItem.Right, GUIItem.Center)
     self.roomContent:SetPosition(Vector(offsetX + self.groupContent:GetPosition().x + widthGroups + GUIScale(8), - parent:GetSize().y / 2, 0))
     self.roomContent:SetTexture(backgroundTexture)
-    self.roomContent:SetTexturePixelCoordinates(0, 0, widthRooms, height)
+    self.roomContent:SetTexturePixelCoordinates(0, 0, 512, 256)
     parent:AddChild(self.roomContent)
 
     local graphicItemHeading = GUIManager:CreateTextItem()
@@ -94,6 +94,15 @@ function RoomSpawnUI_Initialize(self)
         // set the pixel coordinate for the icon
         graphicItem:SetTexturePixelCoordinates(4 * 80, 0, 5 * 80, 80)
 
+        local graphicItemActive = GUIManager:CreateGraphicItem()
+        graphicItemActive:SetSize(ns2d_GUIMarineBuyMenu.kSelectorSize)          
+        graphicItemActive:SetPosition(Vector(-ns2d_GUIMarineBuyMenu.kSelectorSize.x / 2, -ns2d_GUIMarineBuyMenu.kSelectorSize.y / 2, 0))
+        graphicItemActive:SetAnchor(GUIItem.Center, GUIItem.Center)
+        graphicItemActive:SetTexture(ns2d_GUIMarineBuyMenu.kMenuSelectionTexture)
+        graphicItemActive:SetIsVisible(false)
+        
+        graphicItem:AddChild(graphicItemActive)
+
         local itemText = GUIManager:CreateTextItem()
         itemText:SetFontName(Fonts.kAgencyFB_Medium)
         itemText:SetFontIsBold(true)
@@ -108,7 +117,7 @@ function RoomSpawnUI_Initialize(self)
         graphicItem:AddChild(itemText)
 
         local groupText = GUIManager:CreateTextItem()
-        groupText:SetFontName(Fonts.kAgencyFB_Medium)
+        groupText:SetFontName(Fonts.kAgencyFB_Small)
         groupText:SetFontIsBold(true)
         groupText:SetAnchor(GUIItem.Right, GUIItem.Center)
         groupText:SetPosition(Vector(8, 0, 0))
@@ -136,7 +145,33 @@ local function getPlayerTextList(grpId)
     return res
 end
 
+local function _UpdateRoomBottons(self, deltaTime)
+    for i, item in ipairs(RoomSpawnUI_roomButtons) do
+    
+        if RoomSpawnUI_GetIsMouseOver(self, item.Button) then       
+            item.Highlight:SetIsVisible(true)
+        else 
+            item.Highlight:SetIsVisible(false)
+        end
+    end
+end
+
+local function _UpdateGroupBottons(self, deltaTime)
+    for i, item in ipairs(RoomSpawnUI_groupPanels) do
+    
+        if RoomSpawnUI_GetIsMouseOver(self, item.Button) then       
+            item.Highlight:SetIsVisible(true)
+        else 
+            item.Highlight:SetIsVisible(false)
+        end
+    end
+end
+
 function RoomSpawnUI_Update(self, deltaTime)
+
+    _UpdateRoomBottons(self, deltaTime)
+    _UpdateGroupBottons(self, deltaTime)
+
     for i, cmdRoom in ipairs(RoomSpawnUI_roomButtons) do
         if RoomManager.groupInRoom[cmdRoom.RoomId] ~= nil then
             cmdRoom.GroupText:SetText("(Group "..RoomManager.groupInRoom[cmdRoom.RoomId]..")")
@@ -165,10 +200,10 @@ function RoomSpawnUI_Update(self, deltaTime)
             local groupTexture = "ui/combat_marine_buildmenu.dds"
 
             local groupPanel = GUIManager:CreateGraphicItem()
-            groupPanel:SetSize(Vector(self.groupContent:GetSize().x, 1, 0))
+            groupPanel:SetSize(Vector(self.groupContent:GetSize().x - 8, 1, 0))
             groupPanel:SetAnchor(GUIItem.Left, GUIItem.Top)
             groupPanel:SetPosition(Vector(4, GUIScale(50), 0))
-            groupPanel:SetColor(Color(0.05, 0.05, 0.1, 0.7))
+            groupPanel:SetColor(Color(0.05, 0.05, 0.1, 0.6))
 
             local groupButton = GUIManager:CreateGraphicItem()
             groupButton:SetSize(GUIScale( Vector(45, 45, 0) ))
@@ -176,6 +211,16 @@ function RoomSpawnUI_Update(self, deltaTime)
             groupButton:SetPosition(Vector(GUIScale(3), GUIScale(3), 0))
             groupButton:SetTexture(groupTexture)
             groupButton:SetTexturePixelCoordinates(5 * 80, 0, 6 * 80, 80)
+
+            local kHighlightSize = GUIScale( Vector(52, 52, 0) )
+            local graphicItemActive = GUIManager:CreateGraphicItem()
+            graphicItemActive:SetSize(kHighlightSize)          
+            graphicItemActive:SetPosition(Vector(-kHighlightSize.x / 2, -kHighlightSize.y / 2, 0))
+            graphicItemActive:SetAnchor(GUIItem.Center, GUIItem.Center)
+            graphicItemActive:SetTexture(ns2d_GUIMarineBuyMenu.kMenuSelectionTexture)
+            graphicItemActive:SetIsVisible(false)
+            
+            groupButton:AddChild(graphicItemActive)
 
             local groupText = GUIManager:CreateTextItem()
             groupText:SetFontName(Fonts.kAgencyFB_Medium)
@@ -214,7 +259,7 @@ function RoomSpawnUI_Update(self, deltaTime)
 
             self.groupContent:AddChild(groupPanel)
 
-            RoomSpawnUI_groupPanels[grpId] = { Panel = groupPanel, Button = groupButton, PlayersText = groupPlayersText }
+            RoomSpawnUI_groupPanels[grpId] = { Panel = groupPanel, Button = groupButton, Highlight = graphicItemActive, PlayersText = groupPlayersText }
         else
             -- update player list
             RoomSpawnUI_groupPanels[grpId].PlayersText:SetText(getPlayerTextList(grpId))
