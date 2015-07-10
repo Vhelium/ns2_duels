@@ -1,24 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
   <file>
-    <filename>source\lua\DuelCommands_Server.lua</filename>
+    <filename>source\lua\ns2d\Elixer_Utility.lua</filename>
   </file>
   <file>
-    <filename>source\lua\ModClient.lua</filename>
+    <filename>source\lua\ns2d\ns2d_AlienUpgradeChooser_Server.lua</filename>
   </file>
   <file>
-    <filename>source\lua\ModPredict.lua</filename>
+    <filename>source\lua\ns2d\ns2d_Alien_Class_Hook.lua</filename>
   </file>
   <file>
-    <filename>source\lua\ModServer.lua</filename>
+    <filename>source\lua\ns2d\ns2d_Armory.lua</filename>
   </file>
   <file>
-    <filename>source\lua\ModShared.lua</filename>
+    <filename>source\lua\ns2d\ns2d_Armory_Client.lua</filename>
   </file>
   <file>
-    <filename>source\lua\RoomSpawn.lua</filename>
+    <filename>source\lua\ns2d\ns2d_Client.lua</filename>
   </file>
   <file>
-    <filename>source\lua\UberShotgun.lua</filename>
+    <filename>source\lua\ns2d\ns2d_ClipWeapon.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\ns2d_Duel_Server.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\Hud\ns2d_GUIMarineBuyMenu.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\Hud\ns2d_GUIRoomSelection.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\ns2d_GUIScripts.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\ns2d_MarineUpgradeChooser_Server.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\ns2d_Marine_Class_Hook.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\ns2d_NS2ConsoleCommands_Server.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\ns2d_Player_Client.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\ns2d_Predict.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\ns2d_RoomManager.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\ns2d_RoomManagerMessages.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\ns2d_RoomManager_Client.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\ns2d_RoomManager_Server.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\ns2d_RoomSpawn.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\ns2d_Server.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\ns2d_Shared.lua</filename>
+  </file>
+  <file>
+    <filename>source\lua\ns2d\ns2d_Utility.lua</filename>
   </file>
 </project>

@@ -29,7 +29,7 @@ function RoomManager:PlayerLeftGroup( playerId, groupId )
 		self.playersInGroup[groupId][playerId] = nil
 
 		-- if #group == 0, delete group
-		if #self.playersInGroup[groupId] == 0 then
+		if #(self.playersInGroup[groupId]) == 0 then
 			self.playersInGroup[groupId] = nil
 		end
 

@@ -270,7 +270,7 @@ function RoomSpawnUI_Update(self, deltaTime)
             RoomSpawnUI_groupPanels[grpId].Panel:SetSize(Vector(RoomSpawnUI_groupPanels[grpId].Panel:GetSize().x, height, 0))
         end
 
-        -- TODO: Align Group Panels Y
+        -- Align Group Panels Y:
         local locY = GUIScale(50)
         local offY = GUIScale(12)
         for grpId, grpPanel in pairs(RoomSpawnUI_groupPanels) do

@@ -183,6 +183,8 @@ function RoomManager:GetSpawnOrigin(player, roomId)
 		local owner = Server.GetOwner(player) -- the client object
 		if owner then
 			roomId = self:GetCurrentRoomForPlayer(owner:GetUserId())
+		else
+			Shared.Message("SERVER: GetSpawnOrigin("..roomId.."): owner == nil????")
 		end
 	end
 
@@ -209,6 +211,63 @@ function RoomManager:GetNewEmptyGroup(client)
 		if self.playersInGroup[i] == nil then -- empty group found
 			self.playersInGroup[i] = { }
 			return i;
+		end
+	end
+end
+
+function RoomManager:IsOneTeamDown(grpId)
+	local isTeamDown = { [kTeam1Index]=nil, [kTeam2Index]=nil }
+
+	for pId, clnt in pairs(self.playersInGroup[grpId]) do
+		local player = clnt:GetControllingPlayer()
+		if isTeamDown[player:GetTeamNumber()] == nil or player:GetIsAlive() then
+			isTeamDown[player:GetTeamNumber()] = not player:GetIsAlive() -- there is a player still alive!
+		end
+	end
+
+	return isTeamDown[kTeam1Index] == true or isTeamDown[kTeam2Index] == true
+end
+
+local function RefillPlayer(player)
+
+    if player:isa("Marine") then
+	local weapons = player:GetHUDOrderedWeaponList()
+	    for index, weapon in ipairs(weapons) do
+	    
+	        if weapon:isa("ClipWeapon") then
+	            weapon:GiveAmmo(5, false)
+	        end
+    	end
+	    player:TriggerEffects("armory_ammo", {effecthostcoords = Coords.GetTranslation(player:GetOrigin())})
+    end
+
+    --Heal:
+    player:AddHealth(3000)
+
+    -- Give energy:
+    if player:isa("Alien") then
+    	player:SetEnergy(player:GetMaxEnergy())
+	end
+
+    --Marine Armor:
+    player:SetArmor(player.maxArmor)
+end
+
+function RoomManager:RespawnGroup(playingTeam, grpId)
+	playingTeam:ClearRespawnQueue() -- we don't need it anyway
+
+	for pId, clnt in pairs(self.playersInGroup[grpId]) do
+		local player = clnt:GetControllingPlayer()
+		if player == nil then
+			Shared.Message("SERVER: RespawnGrp - PLAYER NIL!")
+		end
+		if player:GetIsAlive() then
+			RefillPlayer(player)
+		else
+			-- respawn in room:
+            Shared.Message("SERVER: RespawnGroup - respawning player..")
+			local success, newPlayer = playingTeam:ReplaceRespawnPlayer(player)
+			self:SpawnPlayerInRoom(clnt, self:GetCurrentRoomForPlayer(pId))
 		end
 	end
 end
