@@ -3,7 +3,59 @@ Script.Load("lua/ns2d/ns2d_RoomManager.lua")
 Script.Load("lua/ServerSponitor.lua")
 
 RoomManager.existsEmptyGroup = false
+RoomManager.upgradesOfGroup = { [-1] = { ArmorLevel=0, WeaponsLevel=0, BiomassLevel=1 } }
 RoomManager.roomSpawns = { } -- list (indexed by room) with spawn origins for rines[1] and aliens[2]
+
+-------------------------------------[ local funcs ]---------------------------------------------------------
+
+local function InitializeGroup(self, grpId)
+	self.playersInGroup[grpId] = {}
+	self.upgradesOfGroup[grpId] = { ArmorLevel=0, WeaponsLevel=0, BiomassLevel=1 }
+end
+
+local function UninitializeGroup(self, grpId)
+	self.playersInGroup[grpId] = nil
+	self.upgradesOfGroup[grpId] = { ArmorLevel=0, WeaponsLevel=0, BiomassLevel=1 }
+end
+
+local function GetTechIdForArmorLevel(level)
+
+    local armorTechId = {}
+    
+    armorTechId[1] = kTechId.Armor1
+    armorTechId[2] = kTechId.Armor2
+    armorTechId[3] = kTechId.Armor3
+    
+    return armorTechId[level]
+
+end
+
+local function GetTechIdForWeaponLevel(level)
+
+    local weaponTechId = {}
+    
+    weaponTechId[1] = kTechId.Weapons1
+    weaponTechId[2] = kTechId.Weapons2
+    weaponTechId[3] = kTechId.Weapons3
+    
+    return weaponTechId[level]
+
+end
+
+local kBioMassTechIds =
+{
+    [1]=kTechId.BioMassOne,
+    [2]=kTechId.BioMassTwo,
+    [3]=kTechId.BioMassThree,
+    [4]=kTechId.BioMassFour,
+    [5]=kTechId.BioMassFive,
+    [6]=kTechId.BioMassSix,
+    [7]=kTechId.BioMassSeven,
+    [8]=kTechId.BioMassEight,
+    [9]=kTechId.BioMassNine
+}
+
+-------------------------------------[ GROUPS/ROOMS ]---------------------------------------------------------
 
 local function OnMapPostLoad()
 	RoomManager.roomSpawns = { } -- clear out old spawns
@@ -60,11 +112,14 @@ function RoomManager:JoinGroup(client, groupId)
 	end
 
 	if self.playersInGroup[groupId] == nil then -- Initialize new group
-		self.playersInGroup[groupId] = {}
+		InitializeGroup(self, grpId)
 	end
 	self.playersInGroup[groupId][playerId] = client
 
 	Server.SendNetworkMessage("RoomPlayerJoinedGroup", { PlayerId = playerId, GroupId = groupId, PlayerName = client:GetControllingPlayer():GetName() }, true)
+
+	-- send all upgrades from that grp:
+	self:SendAllTechTreeUpgrades(playerId, grpId)
 
 	Shared.Message("SERVER: Player["..playerId.."] joined Group #"..groupId)
 
@@ -91,7 +146,7 @@ function RoomManager:LeaveGroup(client)
 		if #(self.playersInGroup[prevGroup]) == 0 then -- no more players
 			Shared.Message("SERVER: Group["..prevGroup.."] is now empty. Deleting..")
 			self:LeaveRoomAsGroup(prevGroup)
-			self.playersInGroup[prevGroup] = nil
+			UninitializeGroup(self, prevGroup)
 		end
 	end
 end
@@ -175,6 +230,116 @@ Event.Hook( "ClientDisconnect", OnClientDisconnect )
 -------------------------------------[ HOOKS ] -------------------------------------------------------------------
 
 
+-------------------------------------[ PLAYER UPGRADES ] ---------------------------------------------------------
+
+local function BuildTechNodeUpgradeMessage(techId, researched)
+    local t = {}
+    
+    t.techId                    = techId
+    t.available                 = true
+    t.researchProgress          = 1
+    t.prereqResearchProgress    = 1
+    t.researched                = researched
+    t.researching               = false
+    t.hasTech                   = researched
+    
+    return t
+end
+
+function RoomManager:OnUpgradeArmorTo(grpId, lvlArmor)
+	if grpId == -1 then return end
+
+	local prevLevel = self.upgradesOfGroup[grpId].ArmorLevel
+	if prevLevel == lvlArmor then return end
+
+    self.upgradesOfGroup[grpId].ArmorLevel = math.max(0, math.min(3, lvlArmor))
+
+    -- propagate this to the group members:
+    for pId, clnt in pairs(self.playersInGroup[grpId]) do
+		if prevLevel > lvlArmor then
+			for i=prevLevel, lvlArmor+1, -1 do
+				Server.SendNetworkMessage(clnt:GetControllingPlayer(), "TechNodeUpdate", BuildTechNodeUpgradeMessage(GetTechIdForArmorLevel(i), false), true)
+			end
+		else
+			for i=prevLevel+1, lvlArmor, 1 do
+				Server.SendNetworkMessage(clnt:GetControllingPlayer(), "TechNodeUpdate", BuildTechNodeUpgradeMessage(GetTechIdForArmorLevel(i), true), true)
+			end
+		end
+	end
+end
+
+function RoomManager:OnUpgradeWeaponsTo(grpId, lvlWeapons)
+	if grpId == -1 then return end
+	
+	local prevLevel = self.upgradesOfGroup[grpId].WeaponsLevel
+    self.upgradesOfGroup[grpId].WeaponsLevel = math.max(0, math.min(3, lvlWeapons))
+
+    -- propagate this to the group members:
+    for pId, clnt in pairs(self.playersInGroup[grpId]) do
+		if prevLevel > lvlWeapons then
+			for i=prevLevel, lvlWeapons+1, -1 do
+				Server.SendNetworkMessage(clnt:GetControllingPlayer(), "TechNodeUpdate", BuildTechNodeUpgradeMessage(GetTechIdForWeaponLevel(i), false), true)
+			end
+		else
+			for i=prevLevel+1, lvlWeapons, 1 do
+				Server.SendNetworkMessage(clnt:GetControllingPlayer(), "TechNodeUpdate", BuildTechNodeUpgradeMessage(GetTechIdForWeaponLevel(i), true), true)
+			end
+		end
+	end
+end
+
+function RoomManager:OnUpgradeBiomassTo(grpId, lvlBio)
+	if grpId == -1 then return end
+	
+	local prevLevel = self.upgradesOfGroup[grpId].BiomassLevel
+    self.upgradesOfGroup[grpId].BiomassLevel = math.max(0, math.min(12, lvlBio))
+
+    -- propagate this to the group members:
+    for pId, clnt in pairs(self.playersInGroup[grpId]) do
+		if prevLevel > lvlBio then
+			for i=prevLevel, lvlBio+1, -1 do
+				if kBioMassTechIds[i] ~= nil then Server.SendNetworkMessage(clnt:GetControllingPlayer(), "TechNodeUpdate", BuildTechNodeUpgradeMessage(kBioMassTechIds[i], false), true) end
+			end
+		else
+			for i=prevLevel+1, math.max(9, lvlBio), 1 do
+				Server.SendNetworkMessage(clnt:GetControllingPlayer(), "TechNodeUpdate", BuildTechNodeUpgradeMessage(kBioMassTechIds[i], true), true)
+			end
+		end
+	end
+end
+
+function RoomManager:OnPlayerJoinedTeam(player)
+
+	local owner = Server.GetOwner(player) -- the client object
+	if owner and (player:GetTeamNumber() == kTeam1Index or player:GetTeamNumber() == kTeam2Index) then
+		playerId = owner:GetUserId()
+		grpId = self:GetGroupFromPlayer(playerId)
+
+		self:SendAllTechTreeUpgrades(playerId, grpId)
+	end
+end
+
+function RoomManager:SendAllTechTreeUpgrades(playerId, grpId)
+	if grpId == -1 then	return end
+
+	for pId, clnt in pairs(self.playersInGroup[grpId]) do
+
+		local player = clnt:GetControllingPlayer()
+
+		player:GetTeam():SendTechTreeBase(player) -- send 'empty' tech tree
+
+		for a=1, 3, 1 do
+			Server.SendNetworkMessage(player, "TechNodeUpdate", BuildTechNodeUpgradeMessage(GetTechIdForArmorLevel(a), (a <= self.upgradesOfGroup[grpId].ArmorLevel)), true)
+		end
+		for w=1, 3, 1 do
+			Server.SendNetworkMessage(player, "TechNodeUpdate", BuildTechNodeUpgradeMessage(GetTechIdForWeaponLevel(w), (w <= self.upgradesOfGroup[grpId].WeaponsLevel)), true)
+		end
+		for b=1, 9, 1 do
+			Server.SendNetworkMessage(player, "TechNodeUpdate", BuildTechNodeUpgradeMessage(GetTechIdForWeaponLevel(b), (b <= self.upgradesOfGroup[grpId].BiomassLevel)), true)
+		end
+
+	end
+end
 
 -------------------------------------[ HELPER FUNCTIONS ] --------------------------------------------------------
 
@@ -206,26 +371,37 @@ function RoomManager:SpawnPlayerInRoom(client, roomId)
 end
 
 kMaxGroupIteration = 200
-function RoomManager:GetNewEmptyGroup(client)
+function RoomManager:GetNewEmptyGroup()
 	for i=1, kMaxGroupIteration, 1 do
 		if self.playersInGroup[i] == nil then -- empty group found
-			self.playersInGroup[i] = { }
+			InitializeGroup(self, i)
 			return i;
 		end
 	end
 end
 
+local function IsPlayerDeadLongEnough(player)
+	local time = Shared.GetTime()
+    if player.timeOfDeath ~= nil and (time - player.timeOfDeath > kFadeToBlackTime) then
+		return true
+    end
+    return false
+end
+
 function RoomManager:IsOneTeamDown(grpId)
-	local isTeamDown = { [kTeam1Index]=nil, [kTeam2Index]=nil }
+	local playersAlive = { [kTeam1Index]=0, [kTeam2Index]=0 } -- 0 means no players in team, 1=dead players, 2=at least one alive
 
 	for pId, clnt in pairs(self.playersInGroup[grpId]) do
 		local player = clnt:GetControllingPlayer()
-		if isTeamDown[player:GetTeamNumber()] == nil or player:GetIsAlive() then
-			isTeamDown[player:GetTeamNumber()] = not player:GetIsAlive() -- there is a player still alive!
+
+		if player:GetIsAlive() or not IsPlayerDeadLongEnough(player) then -- there is a player still alive!
+			playersAlive[player:GetTeamNumber()] = 2
+		elseif playersAlive[player:GetTeamNumber()] == 0 then
+			playersAlive[player:GetTeamNumber()] = 1
 		end
 	end
 
-	return isTeamDown[kTeam1Index] == true or isTeamDown[kTeam2Index] == true
+	return playersAlive[kTeam1Index] == 1 or playersAlive[kTeam2Index] == 1
 end
 
 local function RefillPlayer(player)
@@ -266,7 +442,7 @@ function RoomManager:RespawnGroup(playingTeam, grpId)
 		else
 			-- respawn in room:
             Shared.Message("SERVER: RespawnGroup - respawning player..")
-			local success, newPlayer = playingTeam:ReplaceRespawnPlayer(player)
+			local success, newPlayer = playingTeam:ReplaceRespawnPlayer(player, nil, nil, player.lastClass)
 			self:SpawnPlayerInRoom(clnt, self:GetCurrentRoomForPlayer(pId))
 		end
 	end

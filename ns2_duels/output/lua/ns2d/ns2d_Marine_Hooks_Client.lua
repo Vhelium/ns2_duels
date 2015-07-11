@@ -21,3 +21,7 @@ original_UpdateMarines = Class_ReplaceMethod("ns2d_GUIMarineBuyMenu", "Update", 
 	original_UpdateMarines(self, deltaTime)
 	RoomSpawnUI_Update(self, deltaTime)
 end)
+
+Class_ReplaceMethod("Marine", "Drop", function (self, player)
+    -- nothing :>
+end)

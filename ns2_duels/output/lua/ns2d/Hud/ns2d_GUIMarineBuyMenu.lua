@@ -429,6 +429,7 @@ function ns2d_GUIMarineBuyMenu:_HandleItemClicked(mouseX, mouseY)
                     Shared.ConsoleCommand("dualrailgun")
                 elseif item.UpgrTechId == 20 then                            // reset
                     Shared.ConsoleCommand("marine")
+                    Shared.ConsoleCommand("give rifle")
                 else
                     //nothing
                 end

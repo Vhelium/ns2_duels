@@ -38,6 +38,29 @@ local function OnRoom(client, id)
     
 end
 
+local function OnRoomBots(client, count, teamNr)
+    local roomId = RoomManager:GetCurrentRoomForPlayer(client:GetUserId())
+    if roomId == -1 then
+        Shared.Message("SERVER: roombots - no room found")
+        return
+    end
+
+    OnConsoleAddBots(client, count, teamNr)
+
+    for index = #gServerBots, 1, -1 do
+    
+        local bot = gServerBots[index]
+        if bot then
+            if not bot.roomId then
+                -- port bot to room:
+                bot.roomId = roomId
+                bot:GetPlayer():SetOrigin(RoomManager.roomSpawns[roomId][teamNr])
+            end
+        end
+    end
+
+end
+
 local function OnRoomCurrent(client)
     Shared.Message('SERVER: Current Room for player '..client:GetUserId()..': #'..RoomManager:GetCurrentRoomForPlayer(client:GetUserId()))
 end
@@ -46,40 +69,40 @@ local function OnRoomTest(client, id)
     Shared.Message('SERVER: Test: #'..id)
 end
 
-local function Ona0()
-    OnArmorUpgradeTo(0)
+local function Ona0(client)
+    OnArmorUpgradeTo(client, 0)
 end
 
-local function Ona1()
-    OnArmorUpgradeTo(1)
+local function Ona1(client)
+    OnArmorUpgradeTo(client, 1)
 end
 
-local function Ona2()
-    OnArmorUpgradeTo(2)
+local function Ona2(client)
+    OnArmorUpgradeTo(client, 2)
 end
 
-local function Ona3()
-    OnArmorUpgradeTo(3)
+local function Ona3(client)
+    OnArmorUpgradeTo(client, 3)
 end
 
-local function Onw0()
-    OnWeaponsUpgradeTo(0)
+local function Onw0(client)
+    OnWeaponsUpgradeTo(client, 0)
 end
 
-local function Onw1()
-    OnWeaponsUpgradeTo(1)
+local function Onw1(client)
+    OnWeaponsUpgradeTo(client, 1)
 end
 
-local function Onw2()
-    OnWeaponsUpgradeTo(2)
+local function Onw2(client)
+    OnWeaponsUpgradeTo(client, 2)
 end
 
-local function Onw3()
-    OnWeaponsUpgradeTo(3)
+local function Onw3(client)
+    OnWeaponsUpgradeTo(client, 3)
 end
 
 local function OnBiomass(client, value)
-    OnBiomassTo(tonumber(value))
+    OnBiomassTo(client, tonumber(value))
 end
 
 local function OnPrintRooms()
@@ -102,3 +125,4 @@ Event.Hook("Console_biomass", OnBiomass)
 Event.Hook("Console_roomtest", OnRoomTest)
 Event.Hook("Console_roomcurrent", OnRoomCurrent)
 Event.Hook("Console_rooms", OnPrintRooms)
+Event.Hook("Console_roombots", OnRoomBots)
