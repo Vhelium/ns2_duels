@@ -4,7 +4,7 @@ Script.Load("lua/MarineTeam.lua")
 local function GetArmorLevel(self, player)
 
     local grpId = -1
-    local owner = Server.GetOwner(alien) -- the client object
+    local owner = Server.GetOwner(player) -- the client object
     if owner then
         grpId = RoomManager:GetGroupFromPlayer(owner:GetUserId())
     else
