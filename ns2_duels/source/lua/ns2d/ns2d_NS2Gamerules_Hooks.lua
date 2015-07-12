@@ -27,3 +27,5 @@ function NS2Gamerules_GetUpgradedDamageScalar( attacker )
 
 	return 1.0
 end
+
+ReplaceUpValue(NS2Gamerules.OnUpdate, "CheckForNoCommander", function() end, { LocateRecurse = true; CopyUpValues = true; })

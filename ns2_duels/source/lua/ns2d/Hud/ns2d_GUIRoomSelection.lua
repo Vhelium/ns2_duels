@@ -16,6 +16,7 @@ function RoomSpawnUI_Initialize(self)
 
     local backgroundTexture = "ui/marine_background_texture.dds"
     local roomTexture = "ui/combat_marine_buildmenu.dds"
+    local kMenuSelectionTexture = "ui/marine_buymenu_selector.dds"
 
     local widthGroups = GUIScale(250)
     local widthRooms = GUIScale(180)
@@ -23,6 +24,7 @@ function RoomSpawnUI_Initialize(self)
     local offsetX = GUIScale(50)
 
     local iconSize = GUIScale( Vector(80, 80, 0) )
+    local kSelectorSize = GUIScale( Vector(100, 100, 0) )
 
     self.groupContent = GUIManager:CreateGraphicItem()
     self.groupContent:SetSize(Vector(widthGroups, height, 0))
@@ -30,6 +32,7 @@ function RoomSpawnUI_Initialize(self)
     self.groupContent:SetPosition(Vector(offsetX, - parent:GetSize().y / 2, 0))
     self.groupContent:SetTexture(backgroundTexture)
     self.groupContent:SetTexturePixelCoordinates(0, 0, 512, 256)
+    if Client.GetLocalPlayer():GetTeamNumber() == kAlienTeamType then self.groupContent:SetColor(kAlienFontColor) end
     parent:AddChild(self.groupContent)
 
     local groupsHeading = GUIManager:CreateTextItem()
@@ -68,6 +71,7 @@ function RoomSpawnUI_Initialize(self)
     self.roomContent:SetPosition(Vector(offsetX + self.groupContent:GetPosition().x + widthGroups + GUIScale(8), - parent:GetSize().y / 2, 0))
     self.roomContent:SetTexture(backgroundTexture)
     self.roomContent:SetTexturePixelCoordinates(0, 0, 512, 256)
+    if Client.GetLocalPlayer():GetTeamNumber() == kAlienTeamType then self.roomContent:SetColor(kAlienFontColor) end
     parent:AddChild(self.roomContent)
 
     local graphicItemHeading = GUIManager:CreateTextItem()
@@ -95,10 +99,10 @@ function RoomSpawnUI_Initialize(self)
         graphicItem:SetTexturePixelCoordinates(4 * 80, 0, 5 * 80, 80)
 
         local graphicItemActive = GUIManager:CreateGraphicItem()
-        graphicItemActive:SetSize(ns2d_GUIMarineBuyMenu.kSelectorSize)          
-        graphicItemActive:SetPosition(Vector(-ns2d_GUIMarineBuyMenu.kSelectorSize.x / 2, -ns2d_GUIMarineBuyMenu.kSelectorSize.y / 2, 0))
+        graphicItemActive:SetSize(kSelectorSize)          
+        graphicItemActive:SetPosition(Vector(-kSelectorSize.x / 2, -kSelectorSize.y / 2, 0))
         graphicItemActive:SetAnchor(GUIItem.Center, GUIItem.Center)
-        graphicItemActive:SetTexture(ns2d_GUIMarineBuyMenu.kMenuSelectionTexture)
+        graphicItemActive:SetTexture(kMenuSelectionTexture)
         graphicItemActive:SetIsVisible(false)
         
         graphicItem:AddChild(graphicItemActive)
@@ -153,17 +157,34 @@ local function _UpdateRoomBottons(self, deltaTime)
         else 
             item.Highlight:SetIsVisible(false)
         end
+
+        local useColor = Color(1,1,1,1)
+        if RoomManager:GetCurrentRoomForPlayer(Client.GetSteamId()) == item.RoomId then
+            local anim = math.cos(Shared.GetTime() * 6) * 0.5 + 0.5
+            useColor = Color(1, 1, anim, 1)
+        end
+        item.Button:SetColor(useColor)
+        item.Highlight:SetColor(useColor)
+
     end
 end
 
 local function _UpdateGroupBottons(self, deltaTime)
-    for i, item in ipairs(RoomSpawnUI_groupPanels) do
+    for grpId, item in pairs(RoomSpawnUI_groupPanels) do
     
         if RoomSpawnUI_GetIsMouseOver(self, item.Button) then       
             item.Highlight:SetIsVisible(true)
         else 
             item.Highlight:SetIsVisible(false)
         end
+
+        local useColor = Color(1,1,1,1)
+        if RoomManager:GetGroupFromPlayer(Client.GetSteamId()) == grpId then
+            local anim = math.cos(Shared.GetTime() * 6) * 0.5 + 0.5
+            useColor = Color(1, 1, anim, 1)
+        end
+        item.Button:SetColor(useColor)
+        item.Highlight:SetColor(useColor)
     end
 end
 
@@ -217,7 +238,7 @@ function RoomSpawnUI_Update(self, deltaTime)
             graphicItemActive:SetSize(kHighlightSize)          
             graphicItemActive:SetPosition(Vector(-kHighlightSize.x / 2, -kHighlightSize.y / 2, 0))
             graphicItemActive:SetAnchor(GUIItem.Center, GUIItem.Center)
-            graphicItemActive:SetTexture(ns2d_GUIMarineBuyMenu.kMenuSelectionTexture)
+            graphicItemActive:SetTexture(kMenuSelectionTexture)
             graphicItemActive:SetIsVisible(false)
             
             groupButton:AddChild(graphicItemActive)

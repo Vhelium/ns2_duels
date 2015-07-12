@@ -311,7 +311,11 @@ end
 function RoomManager:OnPlayerJoinedTeam(player)
 
 	local owner = Server.GetOwner(player) -- the client object
-	if owner and (player:GetTeamNumber() == kTeam1Index or player:GetTeamNumber() == kTeam2Index) then
+
+	if owner and owner:GetIsVirtual() then -- its a bot
+    	self:JoinGroup(owner, 1) -- add player to group 1
+
+	elseif owner and (player:GetTeamNumber() == kTeam1Index or player:GetTeamNumber() == kTeam2Index) then
 		playerId = owner:GetUserId()
 		grpId = self:GetGroupFromPlayer(playerId)
 

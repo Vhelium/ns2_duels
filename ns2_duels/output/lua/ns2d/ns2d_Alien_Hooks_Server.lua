@@ -12,7 +12,7 @@ Class_ReplaceMethod("AlienTeam", "Update", function (self, timePassed)
     local shellLevel = 3
     for index, alien in ipairs(GetEntitiesForTeam("Alien", self:GetTeamNumber())) do
 	    local grpId = -1
-	    local owner = GetClientFromPlayer(alien) -- the client object
+	    local owner = Server.GetOwner(alien) -- the client object
 	    if owner then
 	        grpId = RoomManager:GetGroupFromPlayer(owner:GetUserId())
 	    else
@@ -49,4 +49,13 @@ end)
 
 Class_ReplaceMethod("Egg", "SpawnPlayer", function (self, player)
     -- nothing :>
+end)
+
+Class_ReplaceMethod("Exo", "GetCanEject", function (self, player)
+	return false
+end)
+
+Class_ReplaceMethod("CommandStructure", "UpdateCommanderLogin", function (self, force)
+	self.occupied = true
+    self.commanderId = Entity.invalidId
 end)

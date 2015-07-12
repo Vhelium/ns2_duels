@@ -101,6 +101,7 @@ function ns2d_GUIMarineBuyMenu:Update(deltaTime)
 	self.player = Client.GetLocalPlayer()
     self:_UpdateCloseButton(deltaTime)
     self:_UpdateItemButtons(deltaTime)
+    self:_UpdateUpgradesButtons(deltaTime)
     
 end
 
@@ -302,6 +303,33 @@ function ns2d_GUIMarineBuyMenu:_UpdateItemButtons(deltaTime)
 
 end
 
+function UpgradeActive(upgrTechid)
+    local armorLvl = PlayerUI_GetArmorLevel(true)
+    local weaponsLvl = PlayerUI_GetWeaponLevel(true)
+
+    if upgrTechid - 4 < 4 and upgrTechid - 4 == armorLvl or
+        upgrTechid - 8 < 4 and upgrTechid - 8 == weaponsLvl then
+        return true
+    end
+
+    return false
+end
+
+function ns2d_GUIMarineBuyMenu:_UpdateUpgradesButtons(deltaTime)
+    if self and self.itemButtons then
+        for i, item in ipairs(self.itemButtons) do
+
+            local useColor = Color(1,1,1,1)
+            if UpgradeActive(item.UpgrTechId) then
+                local anim = math.cos(Shared.GetTime() * 6) * 0.5 + 0.5
+                useColor = Color(1, 1, anim, 1)
+            end
+            item.Button:SetColor(useColor)
+            item.Highlight:SetColor(useColor)
+        end
+    end
+end
+
 function ns2d_GUIMarineBuyMenu:_UninitializeItemButtons()
 
 /*
@@ -389,10 +417,8 @@ function ns2d_GUIMarineBuyMenu:_HandleItemClicked(mouseX, mouseY)
                 
                 if item.UpgrTechId == 0 then                                 // Heal 
                     Shared.ConsoleCommand("heal 3000")
-                    //Client.SendNetworkMessage( "RoomJoinGroup", { GroupId = 1 } , true )
                 elseif item.UpgrTechId == 1 then                             // catpack
                     Shared.ConsoleCommand("catpack")
-                    //Client.SendNetworkMessage( "RoomJoinGroup", { GroupId = 2 } , true )
                 elseif item.UpgrTechId == 2 then                             // nanoshield
                     Shared.ConsoleCommand("nanoshield")
                 elseif item.UpgrTechId >= 4 and item.UpgrTechId <= 7 then    // a0-a3
@@ -419,7 +445,8 @@ function ns2d_GUIMarineBuyMenu:_HandleItemClicked(mouseX, mouseY)
                     end
                 elseif item.UpgrTechId == 16 then                            // JP
                     if not self.player:isa("Exo") then
-                        Shared.ConsoleCommand("jetpack")
+                        Client.SendNetworkMessage( "RoomGiveJetpack", { } , true )
+                        --Shared.ConsoleCommand("jetpack")
                     end
                 elseif item.UpgrTechId == 17 then                            // exo
                     Shared.ConsoleCommand("exo")

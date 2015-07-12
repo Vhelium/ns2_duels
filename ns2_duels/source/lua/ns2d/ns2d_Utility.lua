@@ -23,12 +23,3 @@ function GetLocalFunction(originalFunction, localFunctionName)
     return nil
     
 end
-
-if Server then
-    function GetClientFromPlayer(player)
-        if player ~= nil and player:isa("Player") then
-            return Server.GetOwner(player) -- the client object
-        end
-        return nil
-    end
-end

@@ -40,6 +40,8 @@ end
 
 local function OnRoomBots(client, count, teamNr)
     local roomId = RoomManager:GetCurrentRoomForPlayer(client:GetUserId())
+    local grpId = RoomManager:GetGroupFromPlayer(client:GetUserId())
+
     if roomId == -1 then
         Shared.Message("SERVER: roombots - no room found")
         return
@@ -51,10 +53,9 @@ local function OnRoomBots(client, count, teamNr)
     
         local bot = gServerBots[index]
         if bot then
-            if not bot.roomId then
-                -- port bot to room:
-                bot.roomId = roomId
-                bot:GetPlayer():SetOrigin(RoomManager.roomSpawns[roomId][teamNr])
+            if not bot:GetPlayer().roomId then
+                -- assign the room to the new bots.
+                --bot:GetPlayer().roomId = roomId
             end
         end
     end
