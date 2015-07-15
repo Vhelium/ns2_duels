@@ -4,6 +4,7 @@ Shared.RegisterNetworkMessage( "RoomJoinGroup", { GroupId = "integer (-1 to 100)
 Shared.RegisterNetworkMessage( "RoomJoinRoom", { RoomId = "integer (-1 to 100)" } )
 
 Shared.RegisterNetworkMessage( "RoomGiveJetpack", { } )
+Shared.RegisterNetworkMessage( "RemoveUpgrade", { techId1 = "enum kTechId"})
 
 
 --From Server

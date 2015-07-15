@@ -1,6 +1,9 @@
 Script.Load("lua/GUIAlienBuyMenu.lua")
 Script.Load("lua/ns2d/Hud/ns2d_GUIRoomSelection.lua")
 
+GUIAlienBuyMenu.kDisabledColor = Color(1, 1, 1, 1)
+GUIAlienBuyMenu.kCannotBuyColor = Color(1, 1, 1, 1)
+
 local original_InitializeBackgroundAliens
 original_InitializeBackgroundAliens = Class_ReplaceMethod("GUIAlienBuyMenu", "_InitializeBackground", function (self)
 	original_InitializeBackgroundAliens(self)
@@ -59,16 +62,16 @@ local sendKeyEvent = function(self, key, down)
         if down then
         
             local allowedToEvolve = PlayerUI_GetHasGameStarted()
-            --allowedToEvolve = allowedToEvolve and GetAlienOrUpgradeSelected(self)
             if allowedToEvolve and self:_GetIsMouseOver(self.evolveButtonBackground) then
             
                 local purchases = { }
-                // Buy the selected alien if we have a different one selected.
+                local removes = { }
+                -- Buy the selected alien if we have a different one selected.
                 if self.selectedAlienType ~= AlienBuy_GetCurrentAlien() then
                     table.insert(purchases, { Type = "Alien", Alien = self.selectedAlienType })
                 end
                 
-                // Buy all selected upgrades.
+               -- Buy all selected upgrades and remove the unselected.
                 for i, currentButton in ipairs(self.upgradeButtons) do
                 
                     if currentButton.Selected then
@@ -80,9 +83,9 @@ local sendKeyEvent = function(self, key, down)
                 closeMenu = true
                 inputHandled = true
                 
-                if #purchases > 0 then
-                    AlienBuy_Purchase(purchases)
-                end
+                --if #purchases > 0 then
+                    AlienBuy_Purchase(purchases, removes)
+                --end
                 
                 AlienBuy_OnPurchase()
                 
@@ -92,13 +95,13 @@ local sendKeyEvent = function(self, key, down)
             
             if not inputHandled then
             
-                // Check if an alien was selected.
+                -- Check if an alien was selected.
                 for k, buttonItem in ipairs(self.alienButtons) do
                 
                     local researched, researchProgress, researching = true, true, false
                     if (researched or researching) and self:_GetIsMouseOver(buttonItem.Button) then
                     
-                        // Deselect all upgrades when a different alien type is selected.
+                        -- Deselect all upgrades when a different alien type is selected.
                         if self.selectedAlienType ~= buttonItem.TypeData.Index then
                         
                             AlienBuy_OnSelectAlien(GUIAlienBuyMenu.kAlienTypes[buttonItem.TypeData.Index].Name)
@@ -116,7 +119,7 @@ local sendKeyEvent = function(self, key, down)
                     
                 end
                 
-                // Check if the close button was pressed.
+                -- Check if the close button was pressed.
                 if self:_GetIsMouseOver(self.closeButton) then
                 
                     closeMenu = true
@@ -201,4 +204,23 @@ ReplaceUpValue(GUIAlienBuyMenu.Update, "UpdateEvolveButton", function(self)
     
     self.evolveButtonVeins:SetColor(Color(1, 1, 1, veinsAlpha))
 
-end, { LocateRecurse = true; CopyUpValues = true; })
+end, { LocateRecurse = true, CopyUpValues = true })
+
+function AlienBuy_Purchase(purchaseTable, removes)
+
+    ASSERT(type(purchaseTable) == "table")
+    
+    local purchaseTechIds = { }
+    
+    for i, purchase in ipairs(purchaseTable) do
+
+        if purchase.Type == "Alien" then
+            table.insert(purchaseTechIds, IndexToAlienTechId(purchase.Alien))
+        elseif purchase.Type == "Upgrade" then
+            table.insert(purchaseTechIds, purchase.TechId)
+        end
+    
+    end
+    
+    Client.SendNetworkMessage("Buy", BuildBuyMessage(purchaseTechIds), true)
+end
