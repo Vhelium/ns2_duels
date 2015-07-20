@@ -112,14 +112,14 @@ function RoomManager:JoinGroup(client, groupId)
 	end
 
 	if self.playersInGroup[groupId] == nil then -- Initialize new group
-		InitializeGroup(self, grpId)
+		InitializeGroup(self, groupId)
 	end
 	self.playersInGroup[groupId][playerId] = client
 
 	Server.SendNetworkMessage("RoomPlayerJoinedGroup", { PlayerId = playerId, GroupId = groupId, PlayerName = client:GetControllingPlayer():GetName() }, true)
 
 	-- send all upgrades from that grp:
-	self:SendAllTechTreeUpgrades(playerId, grpId)
+	self:SendAllTechTreeUpgrades(playerId, groupId)
 
 	Shared.Message("SERVER: Player["..playerId.."] joined Group #"..groupId)
 
@@ -272,6 +272,8 @@ function RoomManager:OnUpgradeWeaponsTo(grpId, lvlWeapons)
 	if grpId == -1 then return end
 	
 	local prevLevel = self.upgradesOfGroup[grpId].WeaponsLevel
+	if prevLevel == lvlWeapons then return end
+
     self.upgradesOfGroup[grpId].WeaponsLevel = math.max(0, math.min(3, lvlWeapons))
 
     -- propagate this to the group members:
@@ -292,6 +294,8 @@ function RoomManager:OnUpgradeBiomassTo(grpId, lvlBio)
 	if grpId == -1 then return end
 	
 	local prevLevel = self.upgradesOfGroup[grpId].BiomassLevel
+	if prevLevel == lvlBio then return end
+
     self.upgradesOfGroup[grpId].BiomassLevel = math.max(0, math.min(12, lvlBio))
 
     -- propagate this to the group members:
@@ -301,7 +305,7 @@ function RoomManager:OnUpgradeBiomassTo(grpId, lvlBio)
 				if kBioMassTechIds[i] ~= nil then Server.SendNetworkMessage(clnt:GetControllingPlayer(), "TechNodeUpdate", BuildTechNodeUpgradeMessage(kBioMassTechIds[i], false), true) end
 			end
 		else
-			for i=prevLevel+1, math.max(9, lvlBio), 1 do
+			for i=prevLevel+1, math.min(9, lvlBio), 1 do
 				Server.SendNetworkMessage(clnt:GetControllingPlayer(), "TechNodeUpdate", BuildTechNodeUpgradeMessage(kBioMassTechIds[i], true), true)
 			end
 		end
@@ -330,7 +334,7 @@ function RoomManager:SendAllTechTreeUpgrades(playerId, grpId)
 
 		local player = clnt:GetControllingPlayer()
 
-		player:GetTeam():SendTechTreeBase(player) -- send 'empty' tech tree
+		--player:GetTeam():SendTechTreeBase(player) -- send 'empty' tech tree
 
 		for a=1, 3, 1 do
 			Server.SendNetworkMessage(player, "TechNodeUpdate", BuildTechNodeUpgradeMessage(GetTechIdForArmorLevel(a), (a <= self.upgradesOfGroup[grpId].ArmorLevel)), true)
@@ -339,7 +343,7 @@ function RoomManager:SendAllTechTreeUpgrades(playerId, grpId)
 			Server.SendNetworkMessage(player, "TechNodeUpdate", BuildTechNodeUpgradeMessage(GetTechIdForWeaponLevel(w), (w <= self.upgradesOfGroup[grpId].WeaponsLevel)), true)
 		end
 		for b=1, 9, 1 do
-			Server.SendNetworkMessage(player, "TechNodeUpdate", BuildTechNodeUpgradeMessage(GetTechIdForWeaponLevel(b), (b <= self.upgradesOfGroup[grpId].BiomassLevel)), true)
+			Server.SendNetworkMessage(player, "TechNodeUpdate", BuildTechNodeUpgradeMessage(kBioMassTechIds[b], (b <= self.upgradesOfGroup[grpId].BiomassLevel)), true)
 		end
 
 	end

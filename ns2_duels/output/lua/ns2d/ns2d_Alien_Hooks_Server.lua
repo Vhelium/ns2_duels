@@ -16,7 +16,6 @@ Class_ReplaceMethod("AlienTeam", "Update", function (self, timePassed)
 		    local owner = Server.GetOwner(alien) -- the client object
 		    if owner then
 		        grpId = RoomManager:GetGroupFromPlayer(owner:GetUserId())
-		        Shared.Message("SERVER: AlienTeam.Update: owner["..index.."] found.")
 		    else
 		        Shared.Message("SERVER: AlienTeam.Update: owner["..index.."] == nil??")
 		    end

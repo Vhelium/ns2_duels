@@ -1,5 +1,6 @@
 Script.Load("lua/GUIAlienBuyMenu.lua")
 Script.Load("lua/ns2d/Hud/ns2d_GUIRoomSelection.lua")
+Script.Load("lua/ns2d/Hud/ns2d_GUIBiomassSelection.lua")
 
 GUIAlienBuyMenu.kDisabledColor = Color(1, 1, 1, 1)
 GUIAlienBuyMenu.kCannotBuyColor = Color(1, 1, 1, 1)
@@ -8,12 +9,14 @@ local original_InitializeBackgroundAliens
 original_InitializeBackgroundAliens = Class_ReplaceMethod("GUIAlienBuyMenu", "_InitializeBackground", function (self)
 	original_InitializeBackgroundAliens(self)
 	RoomSpawnUI_Initialize(self)
+    GUIBiomass_Initialize(self)
 end)
 
 local original_UpdateAliens
 original_UpdateAliens = Class_ReplaceMethod("GUIAlienBuyMenu", "Update", function (self, deltaTime)
 	original_UpdateAliens(self, deltaTime)
 	RoomSpawnUI_Update(self, deltaTime)
+    GUIBiomass_Update(self)
 end)
 
 --local getSelectedUpgradesCost = GetLocalFunction(updateEvolveButton, "GetSelectedUpgradesCost")
@@ -154,7 +157,13 @@ local original_SendKeyEventAliens
 original_SendKeyEventAliens = Class_ReplaceMethod("GUIAlienBuyMenu", "SendKeyEvent", function (self, key, down)
 	local roomRes = RoomSpawnUI_SendKeyEvent(self, key, down)
 	if not roomRes then
-		return sendKeyEvent(self, key, down)
+
+        local bioRes = GUIBiomass_SendKeyEvent(self, key, down)
+        if not bioRes then
+		    return sendKeyEvent(self, key, down)
+        end
+        return bioRes
+
 	end
 	return roomRes
 end)
