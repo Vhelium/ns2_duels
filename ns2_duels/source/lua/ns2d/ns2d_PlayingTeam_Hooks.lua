@@ -5,7 +5,7 @@ Class_ReplaceMethod("PlayingTeam", "ReplaceRespawnPlayer", function (self, playe
         className = mapName
     end
 
-    local teamNumber = self:GetTeamNumber()
+    local teamNumber = player:GetTeamNumber()
     local extraValues = nil
     if player.lastClass == "exo" then
         extraValues = player.lastExoLayout
