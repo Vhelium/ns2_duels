@@ -11,16 +11,17 @@ Class_ReplaceMethod("AlienTeam", "Update", function (self, timePassed)
     
     local shellLevel = 3
     for index, alien in ipairs(GetEntitiesForTeam("Alien", self:GetTeamNumber())) do
-	    local grpId = -1
-	    local owner = Server.GetOwner(alien) -- the client object
-	    if owner then
-	        grpId = RoomManager:GetGroupFromPlayer(owner:GetUserId())
-	    else
-	        Shared.Message("SERVER: AlienTeam.Update: owner == nil??")
+    	if alien:GetIsAlive() then
+		    local grpId = -1
+		    local owner = Server.GetOwner(alien) -- the client object
+		    if owner then
+		        grpId = RoomManager:GetGroupFromPlayer(owner:GetUserId())
+		    else
+		        Shared.Message("SERVER: AlienTeam.Update: owner["..index.."] == nil??")
+		    end
+	        alien:UpdateArmorAmount(shellLevel)
+	        alien:UpdateHealthAmount(math.min(12, RoomManager.upgradesOfGroup[grpId].BiomassLevel), self:GetMaxBioMassLevel())
 	    end
-        alien:UpdateArmorAmount(shellLevel)
-        alien:UpdateHealthAmount(math.min(12, RoomManager.upgradesOfGroup[grpId].BiomassLevel), self:GetMaxBioMassLevel())
-
     end
     
     UpdateCystConstruction(self, timePassed)

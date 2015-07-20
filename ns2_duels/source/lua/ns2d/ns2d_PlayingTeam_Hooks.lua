@@ -5,7 +5,7 @@ Class_ReplaceMethod("PlayingTeam", "ReplaceRespawnPlayer", function (self, playe
         className = mapName
     end
 
-    local teamNumber = player:GetTeamNumber()
+    local teamNumber = self:GetTeamNumber()
     local extraValues = nil
     if player.lastClass == "exo" then
         extraValues = player.lastExoLayout
@@ -45,7 +45,8 @@ originalPlayingTeamUpdate = Class_ReplaceMethod("PlayingTeam", "Update", functio
     for grpId, grp in pairs(RoomManager.playersInGroup) do
         if RoomManager:IsOneTeamDown(grpId) then
             Shared.Message("SERVER: One team down: respawning all from that grp.")
-            RoomManager:RespawnGroup(self, grpId) -- respawn all players from that grp
+            self:ClearRespawnQueue() -- we don't need it anyway
+            RoomManager:RespawnGroup(grpId) -- respawn all players from that grp
         end
     end
 end)

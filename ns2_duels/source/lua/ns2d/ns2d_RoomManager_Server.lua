@@ -433,19 +433,18 @@ local function RefillPlayer(player)
     player:SetArmor(player.maxArmor)
 end
 
-function RoomManager:RespawnGroup(playingTeam, grpId)
-	playingTeam:ClearRespawnQueue() -- we don't need it anyway
+function RoomManager:RespawnGroup(grpId)
 
 	for pId, clnt in pairs(self.playersInGroup[grpId]) do
 		local player = clnt:GetControllingPlayer()
+		local playingTeam = player:GetTeam()
 		if player == nil then
 			Shared.Message("SERVER: RespawnGrp - PLAYER NIL!")
-		end
-		if player:GetIsAlive() then
+		elseif player:GetIsAlive() then
 			RefillPlayer(player)
 		else
 			-- respawn in room:
-            Shared.Message("SERVER: RespawnGroup - respawning player..")
+            Shared.Message("SERVER: RespawnGroup - respawning player in team "..playingTeam:GetTeamNumber().."..")
 			local success, newPlayer = playingTeam:ReplaceRespawnPlayer(player, nil, nil, player.lastClass)
 			self:SpawnPlayerInRoom(clnt, self:GetCurrentRoomForPlayer(pId))
 		end

@@ -22,8 +22,10 @@ Class_ReplaceMethod("MarineTeam", "Update", function (self, timePassed)
     self:UpdateGameMasks(timePassed)
     
     for index, player in ipairs(GetEntitiesForTeam("Player", self:GetTeamNumber())) do
-        local armorLevel = GetArmorLevel(self, player)
-        player:UpdateArmorAmount(armorLevel)
+        if player:GetIsAlive() then
+            local armorLevel = GetArmorLevel(self, player)
+            player:UpdateArmorAmount(armorLevel)
+        end
     end
 end)
 
