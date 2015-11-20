@@ -110,6 +110,22 @@ local function OnPrintRooms()
     RoomManager:PrintRooms()
 end
 
+local function OnRoomSetSpawn(client, customTeam)
+    local player = client:GetControllingPlayer()
+
+    local teamNr = player:GetTeamNumber()
+    if customTeam then
+        teamNr = customTeam
+    end
+    
+    local roomId = RoomManager:GetCurrentRoomForPlayer(client:GetUserId())
+    local origin = player:GetOrigin()
+
+    if roomId ~= -1 then
+        RoomManager:SetRoomSpawnLocation(teamNr, roomId, origin)
+    end
+end
+
 Event.Hook("Console_room", OnRoom)
 
 Event.Hook("Console_a0", Ona0)
@@ -127,3 +143,5 @@ Event.Hook("Console_roomtest", OnRoomTest)
 Event.Hook("Console_roomcurrent", OnRoomCurrent)
 Event.Hook("Console_rooms", OnPrintRooms)
 Event.Hook("Console_roombots", OnRoomBots)
+
+Event.Hook("Console_roomsetspawn", OnRoomSetSpawn)

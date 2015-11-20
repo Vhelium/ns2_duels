@@ -5,6 +5,7 @@ Script.Load("lua/ServerSponitor.lua")
 RoomManager.existsEmptyGroup = false
 RoomManager.upgradesOfGroup = { [-1] = { ArmorLevel=0, WeaponsLevel=0, BiomassLevel=1 } }
 RoomManager.roomSpawns = { } -- list (indexed by room) with spawn origins for rines[1] and aliens[2]
+RoomManager.roomNames = { }
 
 -------------------------------------[ local funcs ]---------------------------------------------------------
 
@@ -60,28 +61,77 @@ local kBioMassTechIds =
 local function OnMapPostLoad()
 	RoomManager.roomSpawns = { } -- clear out old spawns
 
-    local roomSpawnEnts = Shared.GetEntitiesWithClassname("RoomSpawn")
-    for index, spawn in ientitylist(roomSpawnEnts) do
-        local roomId = spawn:GetId()
-        local teamNr = spawn:GetTeamNr()
-        local spawn = spawn:GetOrigin()
-        
-        if (teamNr == 1 or teamNr == 2) and spawn ~= nil then
-        	if RoomManager.roomSpawns[roomId] == nil then
-        		RoomManager.roomSpawns[roomId] = { }
+	local techPoints = EntityListToTable(Shared.GetEntitiesWithClassname("TechPoint"))
+	local roomId
+    for roomId = 1, #techPoints do
+
+        local techPointName = string.lower(techPoints[roomId]:GetLocationName())
+        local spawn = techPoints[roomId]:GetOrigin()
+
+        	RoomManager.roomSpawns[roomId] = { }
+
+        	local spawnDist = -1
+        	local spawnAliens, spawnRines
+        	for index=0, 8, 1 do
+
+	        	local sAliens = GetRandomSpawnForCapsule(1.9, 0.5, spawn, 21, 40, EntityFilterAll())
+	        	local sRines = GetRandomSpawnForCapsule(1.9, 0.5, spawn, 20, 40, EntityFilterAll())
+
+	        	if sAliens and sRines then
+		        	local dist = (sAliens - sRines):GetLength()
+
+		        	if dist > spawnDist then
+		        		spawnDist = dist
+		        		spawnAliens = sAliens
+		        		spawnRines = sRines
+		        	end
+	        	end
+
         	end
-        	RoomManager.roomSpawns[roomId][teamNr] = spawn
-    	end
+
+        	if not spawnAliens then
+        		spawnAliens = spawn
+        	end
+        	if not spawnRines then
+        		spawnRines = spawn
+        	end
+
+        	RoomManager.roomSpawns[roomId][1] = spawnAliens -- Rines
+        	RoomManager.roomSpawns[roomId][2] = spawnRines -- Aliens
+
+        	RoomManager.roomNames[roomId] = techPointName
+
+        	Shared.Message("SERVER: Room found: "..techPointName.." - is origin nil: "..tostring(spawn == nil))
     end
+
+    -- local roomSpawnEnts = Shared.GetEntitiesWithClassname("RoomSpawn")
+    -- for index, spawn in ientitylist(roomSpawnEnts) do
+    --     local roomId = spawn:GetId()
+    --     local teamNr = spawn:GetTeamNr()
+    --     local spawn = spawn:GetOrigin()
+        
+    --     if (teamNr == 1 or teamNr == 2) and spawn ~= nil then
+    --     	if RoomManager.roomSpawns[roomId] == nil then
+    --     		RoomManager.roomSpawns[roomId] = { }
+    --     	end
+    --     	RoomManager.roomSpawns[roomId][teamNr] = spawn
+    -- 	end
+    -- end
 
     -- Send Rooms to player!
     for roomId, spawns in pairs(RoomManager.roomSpawns) do
     	if roomId ~= -1 then
-			Server.SendNetworkMessage(client, "RoomAddRoom", { RoomId = roomId, Description = "none" }, true)
+			Server.SendNetworkMessage(client, "RoomAddRoom", { RoomId = roomId, Description = RoomManager.roomNames[roomId] }, true)
 		end
     end
 end
 Event.Hook("MapPostLoad", OnMapPostLoad)
+
+function RoomManager:SetRoomSpawnLocation(teamNr, roomId, origin)
+	if RoomManager.roomSpawns[roomId] then
+		RoomManager.roomSpawns[roomId][teamNr] = origin
+	end
+end
 
 local original_OnJoinTeam
 original_OnJoinTeam = Class_ReplaceMethod("ServerSponitor", "OnJoinTeam", function (self, player, team)
@@ -215,7 +265,7 @@ local function OnClientConnect( client )
     -- Send Rooms to player!
     for roomId, spawns in pairs(RoomManager.roomSpawns) do
     	if roomId ~= -1 then
-			Server.SendNetworkMessage(client, "RoomAddRoom", { RoomId = roomId, Description = "none" }, true)
+			Server.SendNetworkMessage(client, "RoomAddRoom", { RoomId = roomId, Description = RoomManager.roomNames[roomId] }, true)
 		end
     end
 
@@ -351,6 +401,23 @@ end
 
 -------------------------------------[ HELPER FUNCTIONS ] --------------------------------------------------------
 
+function RoomManager:GetRandomPositionAround(player, origin)
+	-- Compute random spawn location
+    local capsuleHeight, capsuleRadius = player:GetTraceCapsule()
+    Shared.Message("SERVER: capsHeight="..capsuleHeight..", capsRadius="..capsuleRadius)
+
+    local spawnOrigin = GetRandomSpawnForCapsule(capsuleHeight, capsuleRadius, origin, 2, 5, EntityFilterAll())
+    
+    if not spawnOrigin then
+        spawnOrigin = origin + Vector(2, 0.2, 2)
+        Shared.Message("SERVER: No random pos found.")
+    end
+
+    spawnOrigin = GetGroundAtPointWithCapsule(spawnOrigin, player:GetExtents(), PhysicsMask.CommanderBuild)
+
+    return spawnOrigin
+end
+
 function RoomManager:GetSpawnOrigin(player, roomId)
 	if roomId == nil then
 		local owner = Server.GetOwner(player) -- the client object
@@ -361,7 +428,17 @@ function RoomManager:GetSpawnOrigin(player, roomId)
 		end
 	end
 
-	if RoomManager.roomSpawns[roomId] ~= nil then
+	if roomId == -1 then
+
+		local initialTechPoint = player:GetTeam():GetInitialTechPoint()
+
+		if initialTechPoint then
+			local spawnOrigin = initialTechPoint:GetOrigin()
+			return spawnOrigin
+		end
+
+
+	elseif RoomManager.roomSpawns[roomId] ~= nil then
 		return RoomManager.roomSpawns[roomId][player:GetTeamNumber()]
 	end
 
@@ -372,7 +449,7 @@ function RoomManager:SpawnPlayerInRoom(client, roomId)
 	local player = client:GetControllingPlayer()
 	local spawn = self:GetSpawnOrigin(player, roomId)
 	if spawn ~= nil then
-		player:SetOrigin(spawn) -- set Player's origin to corresponding room spawn
+		player:SetOrigin(self:GetRandomPositionAround(player, spawn)) -- set Player's origin to corresponding room spawn
 	else
 		Shared.Message("SERVER: No spawn found: room="..roomId..", team="..player:GetTeamNumber())
 	end
