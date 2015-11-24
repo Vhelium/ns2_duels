@@ -15,7 +15,7 @@ function RoomSpawnUI_Initialize(self)
     local kMenuSelectionTexture = "ui/marine_buymenu_selector.dds"
 
     local widthGroups = GUIScale(220)
-    local widthRooms = GUIScale(150)
+    local widthRooms = GUIScale(175)
     local height = GUIScale(520)
     local offsetX = GUIScale(10)
 
@@ -117,8 +117,8 @@ function RoomSpawnUI_Initialize(self)
         graphicItem:AddChild(itemText)
 
         local roomTitleText = GUIManager:CreateTextItem()
-        roomTitleText:SetFontName(Fonts.kAgencyFB_Small)
-        roomTitleText:SetFontIsBold(false)
+        roomTitleText:SetFontName(Fonts.kAgencyFB_Tiny)
+        roomTitleText:SetFontIsBold(true)
         roomTitleText:SetAnchor(GUIItem.Right, GUIItem.Top)
         roomTitleText:SetPosition(Vector(8, 2, 0))
         roomTitleText:SetTextAlignmentX(GUIItem.Align_Min)

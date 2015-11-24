@@ -25,13 +25,15 @@ Class_ReplaceMethod("PlayingTeam", "ReplaceRespawnPlayer", function (self, playe
         end
     end
     
-    if teamNumber == kTeam2Index and newPlayer.lastUpgradeList then    
+    if teamNumber == kTeam2Index and newPlayer.lastUpgradeList then
         newPlayer.upgrade1 = newPlayer.lastUpgradeList[1] or 1
         newPlayer.upgrade2 = newPlayer.lastUpgradeList[2] or 1
         newPlayer.upgrade3 = newPlayer.lastUpgradeList[3] or 1
     end
     
-    newPlayer:SetOrigin(RoomManager:GetSpawnOrigin(newPlayer))
+    Shared.Message("SERVER: ReplaceRespawnPlayer - respawning player.")
+    newPlayer:SetOrigin(RoomManager:GetRandomPositionAround(newPlayer, RoomManager:GetSpawnOrigin(newPlayer)))
+    newPlayer:DropToFloor()
     newPlayer:ClearEffects()
     
     return (newPlayer ~= nil), newPlayer
