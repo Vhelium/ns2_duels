@@ -4,6 +4,7 @@ Script.Load("lua/ServerSponitor.lua")
 
 RoomManager.existsEmptyGroup = false
 RoomManager.upgradesOfGroup = { [-1] = { ArmorLevel=0, WeaponsLevel=0, BiomassLevel=1 } }
+RoomManager.settingsOfGroup = { [-1] = { InstaRespawn=false } }
 RoomManager.roomSpawns = { } -- list (indexed by room) with spawn origins for rines[1] and aliens[2]
 RoomManager.roomNames = { }
 
@@ -12,11 +13,13 @@ RoomManager.roomNames = { }
 local function InitializeGroup(self, grpId)
 	self.playersInGroup[grpId] = {}
 	self.upgradesOfGroup[grpId] = { ArmorLevel=0, WeaponsLevel=0, BiomassLevel=1 }
+	self.settingsOfGroup[grpId] = { InstaRespawn=kInstaRespawn }
 end
 
 local function UninitializeGroup(self, grpId)
 	self.playersInGroup[grpId] = nil
 	self.upgradesOfGroup[grpId] = { ArmorLevel=0, WeaponsLevel=0, BiomassLevel=1 }
+	self.settingsOfGroup[grpId] = self.settingsOfGroup[-1]
 end
 
 local function GetTechIdForArmorLevel(level)
@@ -260,8 +263,10 @@ end
 -------------------------------------[ (DIS-)CONNECTING ]---------------------------------------------------------
 
 local function OnClientConnect( client )
-	-- New Players are not assigned to a group by default
+	-- Initialize client params
+	client.duelParams = { medSpamInterval = kMedSpamIntervalDefault, timeLastMedpackHeal = 0 }
 
+	-- Note: New Players are not assigned to a group by default
     -- Send Rooms to player!
     for roomId, spawns in pairs(RoomManager.roomSpawns) do
     	if roomId ~= -1 then
@@ -278,6 +283,42 @@ end
 Event.Hook( "ClientDisconnect", OnClientDisconnect )
 
 -------------------------------------[ HOOKS ] -------------------------------------------------------------------
+
+local original_GetUserId
+original_GetUserId = Class_ReplaceMethod("ServerClient", "GetUserId", function(self)
+	if self:GetIsVirtual() then
+		return self.bot_userId
+	else
+		return original_GetUserId(self)
+	end
+end)
+
+-------------------------------------[ SETTINGS ] ----------------------------------------------------------------
+
+kMedSpamIntervalDefault = 400
+kInstaRespawn = false
+
+local function OnSetMedSpamInterval(client, message)
+    local player = client:GetControllingPlayer()
+    if player:isa("Marine") then
+        client.duelParams.medSpamInterval = message.Time
+        Shared.Message("SERVER: Set med spam interval for Player["..player:GetId().."] to "..message.Time.." ms")
+    end
+end
+
+Server.HookNetworkMessage( "RoomMedSpamInterval", OnSetMedSpamInterval )
+
+local function OnSetInstaRespawn(client, message)
+    local playerId = client:GetUserId()
+	local groupId = RoomManager:GetGroupFromPlayer(playerId)
+
+	if groupId ~= -1 then
+		RoomManager.settingsOfGroup[groupId].InstaRespawn=message.InstaRespawn
+        Shared.Message("SERVER: Set insta respawn for group["..groupId.."] to "..message.InstaRespawn)
+	end
+end
+
+Server.HookNetworkMessage( "SetInstaRespawn", OnSetInstaRespawn )
 
 
 -------------------------------------[ PLAYER UPGRADES ] ---------------------------------------------------------

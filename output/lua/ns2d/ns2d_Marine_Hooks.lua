@@ -2,7 +2,13 @@ Script.Load("lua/Marine.lua")
 
 function Marine_OnInitialized_Hook( self )
 	-- initialize params
-	self.duelParams = { medSpamInterval = 0, timeLastMedpack = 0 }
+	self.duelParams = { medSpamInterval = 0, timeLastMedpackHeal = 0 }
+	if Server then
+    	Shared.Message("SERVER: marine init")
+    end
+    if Client then
+    	Shared.Message("CLIENT: marine init")
+    end
 end
 
 function Marine:SetMedSpamInterval( time )

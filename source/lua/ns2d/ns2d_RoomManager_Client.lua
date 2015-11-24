@@ -77,3 +77,17 @@ Client.HookNetworkMessage( "RoomAddRoom", OnAddRoom )
 
 ------------------------------[ LOGIC ]-----------------------------------------------------------
 
+
+------------------------------[ SETTINGS ]--------------------------------------------------------
+
+local function OnSetMedSpamInterval( time )
+	Client.SendNetworkMessage("RoomMedSpamInterval", { Time = time }, true)
+end
+
+Event.Hook("Console_medspaminterval", OnSetMedSpamInterval)
+
+local function OnSetInstaRespawn( b )
+	Client.SendNetworkMessage("SetInstaRespawn", { InstaRespawn = b }, true)
+end
+
+Event.Hook("Console_instarespawn", OnSetInstaRespawn)

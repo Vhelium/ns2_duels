@@ -7,6 +7,7 @@ Shared.RegisterNetworkMessage( "RoomGiveJetpack", { } )
 Shared.RegisterNetworkMessage( "RemoveUpgrade", { techId1 = "enum kTechId"})
 
 Shared.RegisterNetworkMessage( "RoomMedSpamInterval", { Time = "integer (-1 to 2000000)" } )
+Shared.RegisterNetworkMessage( "SetInstaRespawn", { InstaRespawn = "integer (0 to 1)" } )
 
 
 --From Server

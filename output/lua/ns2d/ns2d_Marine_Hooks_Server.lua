@@ -1,5 +1,8 @@
 
 Script.Load("lua/MarineTeam.lua")
+Script.Load("lua/Marine.lua")
+
+--TODO add DuelSettingsMixin
 
 local function GetArmorLevel(self, player)
 
@@ -27,6 +30,20 @@ Class_ReplaceMethod("MarineTeam", "Update", function (self, timePassed)
             player:UpdateArmorAmount(armorLevel)
         end
     end
+end)
+
+-- Get some custom update stuff for 'rines going
+local original_OnProcessMove
+original_OnProcessMove = Class_ReplaceMethod("Marine", "OnProcessMove", function (self, input)
+
+    -- med pack drops
+    local client = Server.GetOwner(self)
+    if client.duelParams.medSpamInterval > 0 and client.duelParams.timeLastMedpackHeal + client.duelParams.medSpamInterval / 1000.0 <= Shared.GetTime() then
+        self:AddHealth(MedPack.kHealth, false, true)
+        client.duelParams.timeLastMedpackHeal = Shared.GetTime()
+    end
+
+    original_OnProcessMove(self, input)
 end)
 
 Class_ReplaceMethod("MarineTeam", "SpawnInitialStructures", function (self, techPoint)
