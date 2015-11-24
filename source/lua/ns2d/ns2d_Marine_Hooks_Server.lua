@@ -1,5 +1,8 @@
 
 Script.Load("lua/MarineTeam.lua")
+Script.Load("lua/Marine.lua")
+
+--TODO add DuelSettingsMixin
 
 local function GetArmorLevel(self, player)
 
@@ -34,5 +37,15 @@ Class_ReplaceMethod("MarineTeam", "SpawnInitialStructures", function (self, tech
     local tower, commandStation = PlayingTeam.SpawnInitialStructures(self, techPoint)
     return tower, commandStation
 end)
+
+local function OnSetMedSpamInterval(client, message)
+    local player = client:GetControllingPlayer()
+    if player:isa("Marine") then
+        player:SetMedSpamInterval(message.Time)
+        Shared.Message("SERVER: Set med spam interval for Player["..player:GetId().."] to "..message.Time.." ms")
+    end
+end
+
+Server.HookNetworkMessage( "RoomMedSpamInterval", OnSetMedSpamInterval )
 
 -- Class_ReplaceMethod("Marine", "Drop", function (self, player) end)

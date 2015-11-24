@@ -6,6 +6,8 @@ Shared.RegisterNetworkMessage( "RoomJoinRoom", { RoomId = "integer (-1 to 100)" 
 Shared.RegisterNetworkMessage( "RoomGiveJetpack", { } )
 Shared.RegisterNetworkMessage( "RemoveUpgrade", { techId1 = "enum kTechId"})
 
+Shared.RegisterNetworkMessage( "RoomMedSpamInterval", { Time = "integer (-1 to 2000000)" } )
+
 
 --From Server
 Shared.RegisterNetworkMessage( "RoomPlayerJoinedGroup", { PlayerId = "integer", GroupId = "integer (-1 to 100)", PlayerName = "string (255)"} )
