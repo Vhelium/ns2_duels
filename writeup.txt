@@ -1,0 +1,25 @@
+
+- Interface:
+	- Group List:
+		- Select / Create Group
+	- Group Settings
+	- Personal Settings
+
+- Group Settings:
+	- Respawn behavior
+	- Upgrades
+	- Set Spawn
+
+- Personal Settings
+	- Weapons/ Tech
+	- Medspam intervall
+	- Drops
+	- Team switch
+
+- Questions:
+	- Auto-switch group when leaving area?
+	- How to define rooms --> each named area?
+
+Remarks:
+	- Replace Alien UI:
+		- Buttons for lifeforms / Upgrades
