@@ -235,6 +235,8 @@ function Alien:ProcessEvolveAction(techIds)
         
         local upgradesAllowed = true
         local upgradeManager = AlienUpgradeManager()
+        -- clear existing upgrades
+        self:ClearUpgrades()
         upgradeManager:Populate(self)
         -- clean any previous custom upgrades :>
         upgradeManager:RemoveUpgrade(oldLifeFormTechId)
