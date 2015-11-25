@@ -53,6 +53,8 @@ local function MarkAlreadyPurchased( self )
     end
 end
 
+           
+
 local sendKeyEvent = function(self, key, down)
 	local closeMenu = false
     local inputHandled = false
@@ -77,6 +79,7 @@ local sendKeyEvent = function(self, key, down)
                 for i, currentButton in ipairs(self.upgradeButtons) do
                 
                     if currentButton.Selected then
+                        Shared.Message('CLIENT: upgrade selected: '..i)
                         table.insert(purchases, { Type = "Upgrade", Alien = self.selectedAlienType, UpgradeIndex = currentButton.Index, TechId = currentButton.TechId })
                     end
                     

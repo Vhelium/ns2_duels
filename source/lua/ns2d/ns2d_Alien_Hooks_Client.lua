@@ -54,48 +54,6 @@ local function MarkAlreadyPurchased( self )
 end
 
            
-Class_ReplaceMethod("GUIAlienBuyMenu", "_HandleUpgradeClicked", function (self, mouseX, mouseY)
-
-    local inputHandled = false
-    
-    for i, currentButton in ipairs(self.upgradeButtons) do
-        -- Can't select if it has been purchased already.
-        
-        local allowedToUnselect = currentButton.Selected
-        local allowedToPuchase = not currentButton.Selected and self:GetCanSelect(currentButton)
-        
-        if (allowedToUnselect or allowedToPuchase) and self:_GetIsMouseOver(currentButton.Icon) then            
-            
-            -- Deselect or Select current button
-            ToggleButton( self, currentButton )
-            
-            if currentButton.Selected then
-                local hiveTypeCurrent = GetHiveTypeForUpgrade( currentButton.TechId )
-                for i, otherButton in ipairs(self.upgradeButtons) do
-                    if currentButton ~= otherButton and otherButton.Selected then
-                        
-                        local hiveTypeOther = GetHiveTypeForUpgrade( otherButton.TechId )
-                        if hiveTypeCurrent == hiveTypeOther then
-                            
-                            DeselectButton( self, otherButton )
-                            
-                        end
-                    end
-                end
-                AlienBuy_OnUpgradeSelected()
-            else
-                AlienBuy_OnUpgradeDeselected()
-            end
-            
-            inputHandled = true
-            break
-            
-        end
-    end
-    
-    return inputHandled
-
-end
 
 local sendKeyEvent = function(self, key, down)
 	local closeMenu = false
