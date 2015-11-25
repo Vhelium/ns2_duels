@@ -199,19 +199,6 @@ local function OnMessageEvolve(client, buyMessage)
     
 end
 
-local kEvolveMessage =
-{
-    techId1 = "enum kTechId",
-    techId2 = "enum kTechId",
-    techId3 = "enum kTechId",
-    techId4 = "enum kTechId",
-    techId5 = "enum kTechId",
-    techId6 = "enum kTechId",
-    techId7 = "enum kTechId",
-    techId8 = "enum kTechId"
-}
-
-Shared.RegisterNetworkMessage("Evolve", kEvolveMessage)
 Server.HookNetworkMessage("Evolve", OnMessageEvolve)
 
 -- choose a lifeforms and some upgrades
@@ -249,8 +236,6 @@ function Alien:ProcessEvolveAction(techIds)
         upgradeManager:Populate(self)
         -- clean any previous custom upgrades :>
         upgradeManager:RemoveUpgrade(oldLifeFormTechId)
-        RemoveAbilities(upgradeManager)
-        RemoveUpgrades(upgradeManager)
         -- The 'new' lifeform
         -- Add this first because it will allow switching existing upgrades
         if lifeFormTechId then

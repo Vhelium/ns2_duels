@@ -68,13 +68,12 @@ local sendKeyEvent = function(self, key, down)
             if allowedToEvolve and self:_GetIsMouseOver(self.evolveButtonBackground) then
             
                 local purchases = { }
-                local removes = { }
                 -- Buy the selected alien if we have a different one selected.
-                if self.selectedAlienType ~= AlienBuy_GetCurrentAlien() then
+                --if self.selectedAlienType ~= AlienBuy_GetCurrentAlien() then
                     table.insert(purchases, { Type = "Alien", Alien = self.selectedAlienType })
-                end
+                --end
                 
-               -- Buy all selected upgrades and remove the unselected.
+               -- Buy all selected upgrades
                 for i, currentButton in ipairs(self.upgradeButtons) do
                 
                     if currentButton.Selected then
@@ -87,7 +86,7 @@ local sendKeyEvent = function(self, key, down)
                 inputHandled = true
                 
                 --if #purchases > 0 then
-                    AlienBuy_Purchase(purchases, removes)
+                    AlienBuy_Purchase(purchases)
                 --end
                 
                 AlienBuy_OnPurchase()
@@ -215,7 +214,7 @@ ReplaceUpValue(GUIAlienBuyMenu.Update, "UpdateEvolveButton", function(self)
 
 end, { LocateRecurse = true, CopyUpValues = true })
 
-function AlienBuy_Purchase(purchaseTable, removes)
+function AlienBuy_Purchase(purchaseTable)
 
     ASSERT(type(purchaseTable) == "table")
     
@@ -231,5 +230,5 @@ function AlienBuy_Purchase(purchaseTable, removes)
     
     end
     
-    Client.SendNetworkMessage("Buy", BuildBuyMessage(purchaseTechIds), true)
+    Client.SendNetworkMessage("Evolve", BuildBuyMessage(purchaseTechIds), true)
 end

@@ -52,7 +52,7 @@ local function IsBotInRoomArea(playerBot, roomId)
         local spawn = RoomManager:GetSpawnOrigin(playerBot, roomId)
         if spawn then
             local dist = (playerBot:GetOrigin() - spawn):GetLength()
-            Shared.Message("SERVER: dist to room orig: "..dist)
+            --Shared.Message("SERVER: dist to room orig: "..dist)
             return dist <= kMaxDistanceToRoomSpawnForBots
         else
             return true
@@ -84,7 +84,7 @@ originalPlayingTeamUpdate = Class_ReplaceMethod("PlayingTeam", "Update", functio
             -- bot left room area?
             if roomId ~= -1 and not IsBotInRoomArea(bot:GetPlayer(), roomId) then
                 -- teleport back on spawn
-                Shared.Message("SERVER: Bot left room. Porting it back.")
+                --Shared.Message("SERVER: Bot left room. Porting it back.")
                 RoomManager:SpawnPlayerInRoom(bot.client, roomId)
             end
         end

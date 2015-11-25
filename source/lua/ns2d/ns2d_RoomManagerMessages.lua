@@ -9,6 +9,19 @@ Shared.RegisterNetworkMessage( "RemoveUpgrade", { techId1 = "enum kTechId"})
 Shared.RegisterNetworkMessage( "RoomMedSpamInterval", { Time = "integer (-1 to 2000000)" } )
 Shared.RegisterNetworkMessage( "SetInstaRespawn", { InstaRespawn = "integer (0 to 1)" } )
 
+local kEvolveMessage =
+{
+    techId1 = "enum kTechId",
+    techId2 = "enum kTechId",
+    techId3 = "enum kTechId",
+    techId4 = "enum kTechId",
+    techId5 = "enum kTechId",
+    techId6 = "enum kTechId",
+    techId7 = "enum kTechId",
+    techId8 = "enum kTechId"
+}
+
+Shared.RegisterNetworkMessage("Evolve", kEvolveMessage)
 
 --From Server
 Shared.RegisterNetworkMessage( "RoomPlayerJoinedGroup", { PlayerId = "integer", GroupId = "integer (-1 to 100)", PlayerName = "string (255)"} )
