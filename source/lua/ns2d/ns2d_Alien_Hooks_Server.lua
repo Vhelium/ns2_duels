@@ -44,6 +44,10 @@ Class_ReplaceMethod("AlienTeam", "GetBioMassLevel", function (self)
 	return 12
 end)
 
+Class_ReplaceMethod("AlienTeam", "GetBioMassAlertLevel", function (self)
+    return 12
+end)
+
 Class_ReplaceMethod("AlienTeam", "GetMaxBioMassLevel", function (self)
 	return 12
 end)
