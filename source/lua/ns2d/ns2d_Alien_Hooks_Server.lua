@@ -234,7 +234,7 @@ function Alien:ProcessEvolveAction(techIds)
 end
 
 local orig_atiOnUpdate
-local orig_atiOnUpdate = Class_ReplaceMethod("AlienTeamInfo", "OnUpdate", function(self, deltaTime)
+orig_atiOnUpdate = Class_ReplaceMethod("AlienTeamInfo", "OnUpdate", function(self, deltaTime)
     orig_atiOnUpdate(self, deltaTime)
     self.veilLevel = 3
     self.spurLevel = 3
