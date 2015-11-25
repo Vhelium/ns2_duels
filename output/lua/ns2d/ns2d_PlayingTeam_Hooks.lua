@@ -39,16 +39,50 @@ Class_ReplaceMethod("PlayingTeam", "ReplaceRespawnPlayer", function (self, playe
     return (newPlayer ~= nil), newPlayer
 end)
 
+kMaxDistanceToRoomSpawnForBots = 300
+
+local function IsBotInRoomArea(playerBot, roomId)
+    if not playerBot:GetIsAlive() then
+        return true
+    end
+
+    local spawn = RoomManager:GetSpawnOrigin(playerBot, roomId)
+    if spawn then
+        local dist = (playerBot:GetOrigin() - spawn):GetLength()
+        Shared.Message("SERVER: dist to room orig: "..dist)
+        return dist <= kMaxDistanceToRoomSpawnForBots
+    else
+        return true
+    end
+end
+
 local originalPlayingTeamUpdate
 originalPlayingTeamUpdate = Class_ReplaceMethod("PlayingTeam", "Update", function (self, timePassed)
     originalPlayingTeamUpdate(self, timePassed)
 
     -- check for players to respawn:
     for grpId, grp in pairs(RoomManager.playersInGroup) do
-        if RoomManager:IsOneTeamDown(grpId) then
+
+        if RoomManager.settingsOfGroup[grpId].InstaRespawn == 1 then
+            RoomManager:RespawnDeadPlayers(grpId)
+
+        elseif RoomManager:IsOneTeamDown(grpId) then
             Shared.Message("SERVER: One team down: respawning all from that grp.")
             self:ClearRespawnQueue() -- we don't need it anyway
             RoomManager:RespawnGroup(grpId) -- respawn all players from that grp
+        end
+    end
+
+    -- check for bots leaving the area
+    for i, bot in ipairs(gServerBots) do
+        if bot:GetPlayer() then
+            roomId = RoomManager:GetCurrentRoomForPlayer(bot.client:GetUserId())
+            -- bot left room area?
+            if roomId ~= -1 and not IsBotInRoomArea(bot:GetPlayer(), roomId) then
+                -- teleport back on spawn
+                Shared.Message("SERVER: Bot left room. Porting it back.")
+                RoomManager:SpawnPlayerInRoom(bot.client, roomId)
+            end
         end
     end
 end)
