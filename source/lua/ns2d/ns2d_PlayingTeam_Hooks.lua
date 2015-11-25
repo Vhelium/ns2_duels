@@ -39,13 +39,17 @@ Class_ReplaceMethod("PlayingTeam", "ReplaceRespawnPlayer", function (self, playe
     return (newPlayer ~= nil), newPlayer
 end)
 
-kMaxDistanceToRoomSpawnForBots = 300
+kMaxDistanceToRoomSpawnForBots = 100
 
 local function IsBotInRoomArea(playerBot, roomId)
-    local spawn = RoomManager:GetSpawnOrigin(playerBot, roomId)
-    local dist = (playerBot:GetOrigin() - spawn:GetOrigin()):GetLength()
-    Shared.Message("SERVER: dist to room orig: "..dist)
-    return dist <= kMaxDistanceToRoomSpawnForBots
+    if RoomManager.roomIsRegion[roomId] then
+        return playerBot:GetLocationName() == RoomManager.roomNames[roomId]
+    else
+        local spawn = RoomManager:GetSpawnOrigin(playerBot, roomId)
+        local dist = (playerBot:GetOrigin() - spawn:GetOrigin()):GetLength()
+        Shared.Message("SERVER: dist to room orig: "..dist)
+        return dist <= kMaxDistanceToRoomSpawnForBots
+    end
 end
 
 local originalPlayingTeamUpdate
