@@ -51,9 +51,7 @@ local function MarkAlreadyPurchased( self )
     for i, currentButton in ipairs(self.upgradeButtons) do
         currentButton.Purchased = isAlreadySelectedAlien and AlienBuy_GetUpgradePurchased( currentButton.TechId )
     end
-end
-
-           
+end 
 
 local sendKeyEvent = function(self, key, down)
 	local closeMenu = false

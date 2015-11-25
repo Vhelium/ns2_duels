@@ -96,6 +96,8 @@ Class_ReplaceMethod("Alien", "ProcessBuyAction", function(self, techIds)
         
         local upgradesAllowed = true
         local upgradeManager = AlienUpgradeManager()
+        -- clear existing upgrades
+        self:ClearUpgrades()
         upgradeManager:Populate(self)
         -- add this first because it will allow switching existing upgrades
         if lifeFormTechId then
@@ -233,6 +235,8 @@ function Alien:ProcessEvolveAction(techIds)
         
         local upgradesAllowed = true
         local upgradeManager = AlienUpgradeManager()
+        -- clear existing upgrades
+        self:ClearUpgrades()
         upgradeManager:Populate(self)
         -- clean any previous custom upgrades :>
         upgradeManager:RemoveUpgrade(oldLifeFormTechId)
