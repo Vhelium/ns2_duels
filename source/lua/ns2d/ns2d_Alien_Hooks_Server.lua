@@ -97,6 +97,7 @@ Class_ReplaceMethod("Alien", "ProcessBuyAction", function(self, techIds)
         local upgradesAllowed = true
         local upgradeManager = AlienUpgradeManager()
         -- clear existing upgrades
+        Print("Upgrades: %s", ToString(self:GetUpgrades()))
         self:ClearUpgrades()
         upgradeManager:Populate(self)
         -- add this first because it will allow switching existing upgrades
