@@ -1,4 +1,4 @@
-RoomManager = RoomManager or {}
+RoomManager = RoomManager or { }
 RoomManager.playersInGroup = { }
 RoomManager.groupInRoom = { }
 
