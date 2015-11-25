@@ -39,6 +39,10 @@ Class_ReplaceMethod("PlayingTeam", "ReplaceRespawnPlayer", function (self, playe
     return (newPlayer ~= nil), newPlayer
 end)
 
+local function IsBotInRoomArea(playerBot, roomId)
+    return true
+end
+
 local originalPlayingTeamUpdate
 originalPlayingTeamUpdate = Class_ReplaceMethod("PlayingTeam", "Update", function (self, timePassed)
     originalPlayingTeamUpdate(self, timePassed)
@@ -53,6 +57,16 @@ originalPlayingTeamUpdate = Class_ReplaceMethod("PlayingTeam", "Update", functio
             Shared.Message("SERVER: One team down: respawning all from that grp.")
             self:ClearRespawnQueue() -- we don't need it anyway
             RoomManager:RespawnGroup(grpId) -- respawn all players from that grp
+        end
+    end
+
+    -- check for bots leaving the area
+    for i, bot in ipairs(gServerBots) do
+        roomId = RoomManager:GetGroupFromPlayer(bot.client:GetUserId())
+        -- bot left room area?
+        if not IsBotInRoomArea(bot:getPlayer(), roomId) then
+            -- teleport back on spawn
+            RoomManager:SpawnPlayerInRoom(bot.client, roomId)
         end
     end
 end)
