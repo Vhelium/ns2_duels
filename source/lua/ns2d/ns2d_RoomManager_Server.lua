@@ -572,3 +572,20 @@ function RoomManager:RespawnGroup(grpId)
 		end
 	end
 end
+
+-- Used for insta respawn
+function RoomManager:RespawnDeadPlayers(grpId)
+
+	for pId, clnt in pairs(self.playersInGroup[grpId]) do
+		local player = clnt:GetControllingPlayer()
+		local playingTeam = player:GetTeam()
+		if player == nil then
+			Shared.Message("SERVER: RespawnGrp - PLAYER NIL!")
+		elseif not player:GetIsAlive() and IsPlayerDeadLongEnough(player) then
+			-- respawn in room:
+            Shared.Message("SERVER: RespawnDeadPlayers - insta respawning player in grp "..grpId.."..")
+			local success, newPlayer = playingTeam:ReplaceRespawnPlayer(player, nil, nil, player.lastClass)
+			self:SpawnPlayerInRoom(clnt, self:GetCurrentRoomForPlayer(pId))
+		end
+	end
+end

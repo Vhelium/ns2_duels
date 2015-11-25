@@ -45,7 +45,11 @@ originalPlayingTeamUpdate = Class_ReplaceMethod("PlayingTeam", "Update", functio
 
     -- check for players to respawn:
     for grpId, grp in pairs(RoomManager.playersInGroup) do
-        if RoomManager:IsOneTeamDown(grpId) then
+
+        if RoomManager.settingsOfGroup[grpId].InstaRespawn == 1 then
+            RoomManager:RespawnDeadPlayers(grpId)
+
+        elseif RoomManager:IsOneTeamDown(grpId) then
             Shared.Message("SERVER: One team down: respawning all from that grp.")
             self:ClearRespawnQueue() -- we don't need it anyway
             RoomManager:RespawnGroup(grpId) -- respawn all players from that grp
