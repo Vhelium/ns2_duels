@@ -7,6 +7,7 @@ RoomManager.upgradesOfGroup = { [-1] = { ArmorLevel=0, WeaponsLevel=0, BiomassLe
 RoomManager.settingsOfGroup = { [-1] = { InstaRespawn=false } }
 RoomManager.roomSpawns = { } -- list (indexed by room) with spawn origins for rines[1] and aliens[2]
 RoomManager.roomNames = { }
+RoomManager.roomIsRegion = { }
 
 -------------------------------------[ local funcs ]---------------------------------------------------------
 
@@ -103,6 +104,7 @@ local function OnMapPostLoad()
         	RoomManager.roomSpawns[roomId][2] = spawnRines -- Aliens
 
         	RoomManager.roomNames[roomId] = techPointName
+        	RoomManager.roomIsRegion[roomId] = true
 
         	Shared.Message("SERVER: Room found: "..techPointName.." - is origin nil: "..tostring(spawn == nil))
     end
@@ -118,6 +120,7 @@ local function OnMapPostLoad()
     --     		RoomManager.roomSpawns[roomId] = { }
     --     	end
     --     	RoomManager.roomSpawns[roomId][teamNr] = spawn
+    --    	RoomManager.roomIsRegion[roomId] = false
     -- 	end
     -- end
 
