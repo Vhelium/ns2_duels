@@ -1,4 +1,6 @@
 
+local kSliderWidth = 32
+
 function RoomSpawnUI_Initialize(self)
 
     self.RoomSpawnUI_roomButtons = { }
@@ -30,6 +32,23 @@ function RoomSpawnUI_Initialize(self)
     self.groupContent:SetTexturePixelCoordinates(0, 0, 512, 256)
     if Client.GetLocalPlayer():GetTeamNumber() == kAlienTeamType then self.groupContent:SetColor(kAlienFontColor) end
     parent:AddChild(self.groupContent)
+
+    -- create content box for groups -------------------------------------
+    self.slideBar = CreateMenuElement(groupContent, "SlideBar", false)
+    self.slideBar:SetBackgroundSize(Vector(kSliderWidth, 100, 0), true)
+    self.slideBar:SetVertical()
+    self.slideBar:SetBackgroundPosition(Vector(-kSliderWidth, 0, 0))
+    self.slideBar:SetAnchor(GUIItem.Right, GUIItem.Top)
+    self.slideBar:ScrollMax()
+    
+    self.groupContentBox = CreateMenuElement(groupContent, "ContentBox", false)
+    self.groupContentBox:SetOpacity(0)
+    self.groupContentBox:SetBorderWidth(0)
+    self.groupContentBox:SetLeftOffset(10)
+
+    self.slideBar:Register(self.groupContentBox, SLIDE_VERTICAL)
+
+    ----------------------------------------------------------------------
 
     local groupsHeading = GUIManager:CreateTextItem()
     groupsHeading:SetFontName(Fonts.kAgencyFB_Medium)
@@ -287,6 +306,7 @@ function RoomSpawnUI_Update(self, deltaTime)
             local height = math.max(playerTextOffsetY + groupPlayersText:GetSize().y, groupButton:GetSize().y + 8)
             groupPanel:SetSize(Vector(groupPanel:GetSize().x, height, 0))
 
+            -- TODO: add to scroll list
             self.groupContent:AddChild(groupPanel)
 
             self.RoomSpawnUI_groupPanels[grpId] = { Panel = groupPanel, Button = groupButton, Highlight = graphicItemActive, PlayersText = groupPlayersText }
