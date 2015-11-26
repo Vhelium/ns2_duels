@@ -33,7 +33,7 @@ local function GetSmallIconPixelCoordinates(upgrTechId)
 end
 
 local function upgradeExists(upgrTechId)
-    return upgrTechId ~= 3 and upgrTechId < 21
+    upgrTechId < 21
 end
 
 function ns2d_GUIMarineBuyMenu:SetHostStructure(hostStructure)
@@ -421,6 +421,8 @@ function ns2d_GUIMarineBuyMenu:_HandleItemClicked(mouseX, mouseY)
                     Shared.ConsoleCommand("catpack")
                 elseif item.UpgrTechId == 2 then                             // nanoshield
                     Shared.ConsoleCommand("nanoshield")
+                elseif item.UpgrTechId == 2 then                             // medspam
+                    Shared.ConsoleCommand("medspaminterval "..self.currentMedSpamInterval)
                 elseif item.UpgrTechId >= 4 and item.UpgrTechId <= 7 then    // a0-a3
                     local a = item.UpgrTechId - 4
                     Shared.ConsoleCommand("a"..a)
