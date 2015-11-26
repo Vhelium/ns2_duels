@@ -34,14 +34,14 @@ function RoomSpawnUI_Initialize(self)
     parent:AddChild(self.groupContent)
 
     -- create content box for groups -------------------------------------
-    self.slideBar = CreateMenuElement(groupContent, "SlideBar", false)
+    self.slideBar = CreateMenuElement(parent, "SlideBar", false)
     self.slideBar:SetBackgroundSize(Vector(kSliderWidth, 100, 0), true)
     self.slideBar:SetVertical()
     self.slideBar:SetBackgroundPosition(Vector(-kSliderWidth, 0, 0))
     self.slideBar:SetAnchor(GUIItem.Right, GUIItem.Top)
     self.slideBar:ScrollMax()
     
-    self.groupContentBox = CreateMenuElement(groupContent, "ContentBox", false)
+    self.groupContentBox = CreateMenuElement(parent, "ContentBox", false)
     self.groupContentBox:SetOpacity(0)
     self.groupContentBox:SetBorderWidth(0)
     self.groupContentBox:SetLeftOffset(10)
@@ -307,7 +307,7 @@ function RoomSpawnUI_Update(self, deltaTime)
             groupPanel:SetSize(Vector(groupPanel:GetSize().x, height, 0))
 
             -- TODO: add to scroll list
-            self.groupContent:AddChild(groupPanel)
+            self.groupContentBox:AddChild(groupPanel)
 
             self.RoomSpawnUI_groupPanels[grpId] = { Panel = groupPanel, Button = groupButton, Highlight = graphicItemActive, PlayersText = groupPlayersText }
         else
