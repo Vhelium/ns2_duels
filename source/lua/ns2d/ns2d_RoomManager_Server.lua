@@ -4,7 +4,7 @@ Script.Load("lua/ServerSponitor.lua")
 
 RoomManager.existsEmptyGroup = false
 RoomManager.upgradesOfGroup = { [-1] = { ArmorLevel=0, WeaponsLevel=0, BiomassLevel=1 } }
-RoomManager.settingsOfGroup = { [-1] = { InstaRespawn=false } }
+RoomManager.settingsOfGroup = { [-1] = { PlayerCount = 0, InstaRespawn=false } }
 RoomManager.roomSpawns = { } -- list (indexed by room) with spawn origins for rines[1] and aliens[2]
 RoomManager.roomNames = { }
 RoomManager.roomIsRegion = { }
@@ -14,7 +14,7 @@ RoomManager.roomIsRegion = { }
 local function InitializeGroup(self, grpId)
 	self.playersInGroup[grpId] = {}
 	self.upgradesOfGroup[grpId] = { ArmorLevel=0, WeaponsLevel=0, BiomassLevel=1 }
-	self.settingsOfGroup[grpId] = { InstaRespawn=kInstaRespawn }
+	self.settingsOfGroup[grpId] = { PlayerCount=0, InstaRespawn=kInstaRespawn }
 end
 
 local function UninitializeGroup(self, grpId)
@@ -171,6 +171,7 @@ function RoomManager:JoinGroup(client, groupId)
 		InitializeGroup(self, groupId)
 	end
 	self.playersInGroup[groupId][playerId] = client
+	RoomManager.settingsOfGroup[groupId].PlayerCount = RoomManager.settingsOfGroup[groupId].PlayerCount + 1
 
 	Server.SendNetworkMessage("RoomPlayerJoinedGroup", { PlayerId = playerId, GroupId = groupId, PlayerName = client:GetControllingPlayer():GetName() }, true)
 
@@ -194,12 +195,13 @@ function RoomManager:LeaveGroup(client)
 	local prevGroup = self:GetGroupFromPlayer(playerId)
 	if prevGroup ~= -1 then
 		self.playersInGroup[prevGroup][playerId] = nil
+		RoomManager.settingsOfGroup[prevGroup].PlayerCount = RoomManager.settingsOfGroup[prevGroup].PlayerCount - 1
 		Server.SendNetworkMessage("RoomPlayerLeftGroup", { PlayerId = playerId, GroupId = prevGroup }, true)
 
 		Shared.Message("SERVER: Player["..playerId.."] left Group #"..prevGroup)
 
 		-- Check if group is empty now:
-		if #(self.playersInGroup[prevGroup]) == 0 then -- no more players
+		if RoomManager.settingsOfGroup[prevGroup].PlayerCount == 0 then -- no more players
 			Shared.Message("SERVER: Group["..prevGroup.."] is now empty. Deleting..")
 			self:LeaveRoomAsGroup(prevGroup)
 			UninitializeGroup(self, prevGroup)
@@ -298,7 +300,7 @@ end)
 
 -------------------------------------[ SETTINGS ] ----------------------------------------------------------------
 
-kMedSpamIntervalDefault = 400
+kMedSpamIntervalDefault = 0
 kInstaRespawn = false
 
 local function OnSetMedSpamInterval(client, message)
@@ -411,7 +413,7 @@ function RoomManager:OnPlayerJoinedTeam(player)
 	local owner = Server.GetOwner(player) -- the client object
 
 	if owner and owner:GetIsVirtual() then -- its a bot
-    	self:JoinGroup(owner, 1) -- add player to group 1
+    	self:JoinGroup(owner, owner.initialGroup) -- add player to group 1
 
 	elseif owner and (player:GetTeamNumber() == kTeam1Index or player:GetTeamNumber() == kTeam2Index) then
 		playerId = owner:GetUserId()

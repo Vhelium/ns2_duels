@@ -34,19 +34,19 @@ function RoomSpawnUI_Initialize(self)
     parent:AddChild(self.groupContent)
 
     -- create content box for groups -------------------------------------
-    self.slideBar = CreateMenuElement(parent, "SlideBar", false)
-    self.slideBar:SetBackgroundSize(Vector(kSliderWidth, 100, 0), true)
-    self.slideBar:SetVertical()
-    self.slideBar:SetBackgroundPosition(Vector(-kSliderWidth, 0, 0))
-    self.slideBar:SetAnchor(GUIItem.Right, GUIItem.Top)
-    self.slideBar:ScrollMax()
+    -- self.slideBar = CreateMenuElement(parent, "SlideBar", false)
+    -- self.slideBar:SetBackgroundSize(Vector(kSliderWidth, 100, 0), true)
+    -- self.slideBar:SetVertical()
+    -- self.slideBar:SetBackgroundPosition(Vector(-kSliderWidth, 0, 0))
+    -- self.slideBar:SetAnchor(GUIItem.Right, GUIItem.Top)
+    -- self.slideBar:ScrollMax()
     
-    self.groupContentBox = CreateMenuElement(parent, "ContentBox", false)
-    self.groupContentBox:SetOpacity(0)
-    self.groupContentBox:SetBorderWidth(0)
-    self.groupContentBox:SetLeftOffset(10)
+    -- self.groupContentBox = CreateMenuElement(parent, "ContentBox", false)
+    -- self.groupContentBox:SetOpacity(0)
+    -- self.groupContentBox:SetBorderWidth(0)
+    -- self.groupContentBox:SetLeftOffset(10)
 
-    self.slideBar:Register(self.groupContentBox, SLIDE_VERTICAL)
+    -- self.slideBar:Register(self.groupContentBox, SLIDE_VERTICAL)
 
     ----------------------------------------------------------------------
 
@@ -251,7 +251,6 @@ function RoomSpawnUI_Update(self, deltaTime)
             local groupPanel = GUIManager:CreateGraphicItem()
             groupPanel:SetSize(Vector(self.groupContent:GetSize().x - 8, 1, 0))
             groupPanel:SetAnchor(GUIItem.Left, GUIItem.Top)
-            groupPanel:SetPosition(Vector(4, GUIScale(50), 0))
             groupPanel:SetColor(Color(0.05, 0.05, 0.1, 0.6))
 
             local groupButton = GUIManager:CreateGraphicItem()
@@ -307,7 +306,7 @@ function RoomSpawnUI_Update(self, deltaTime)
             groupPanel:SetSize(Vector(groupPanel:GetSize().x, height, 0))
 
             -- TODO: add to scroll list
-            self.groupContentBox:AddChild(groupPanel)
+            self.groupContent:AddChild(groupPanel)
 
             self.RoomSpawnUI_groupPanels[grpId] = { Panel = groupPanel, Button = groupButton, Highlight = graphicItemActive, PlayersText = groupPlayersText }
         else
@@ -320,15 +319,16 @@ function RoomSpawnUI_Update(self, deltaTime)
             self.RoomSpawnUI_groupPanels[grpId].Panel:SetSize(Vector(self.RoomSpawnUI_groupPanels[grpId].Panel:GetSize().x, height, 0))
         end
 
-        -- Align Group Panels Y:
-        local locY = GUIScale(50)
-        local offY = GUIScale(12)
-        for grpId, grpPanel in pairs(self.RoomSpawnUI_groupPanels) do
-            self.RoomSpawnUI_groupPanels[grpId].Panel:SetPosition(Vector(4, locY, 0))
-            locY = locY + self.RoomSpawnUI_groupPanels[grpId].Panel:GetSize().y + offY
-        end
-
     end
+
+    -- Align Group Panels Y:
+    local locY = GUIScale(50)
+    local offY = GUIScale(12)
+    for grpId, grpPanel in pairs(self.RoomSpawnUI_groupPanels) do
+        self.RoomSpawnUI_groupPanels[grpId].Panel:SetPosition(Vector(4, locY, 0))
+        locY = locY + self.RoomSpawnUI_groupPanels[grpId].Panel:GetSize().y + offY
+    end
+
 end
 
 function RoomSpawnUI_Uninitialize(self)

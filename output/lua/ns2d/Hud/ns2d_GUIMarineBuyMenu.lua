@@ -33,7 +33,7 @@ local function GetSmallIconPixelCoordinates(upgrTechId)
 end
 
 local function upgradeExists(upgrTechId)
-    return upgrTechId ~= 3 and upgrTechId < 21
+    return upgrTechId < 21
 end
 
 function ns2d_GUIMarineBuyMenu:SetHostStructure(hostStructure)
@@ -266,6 +266,19 @@ function ns2d_GUIMarineBuyMenu:_InitializeUpgradeButtons()
             // set the pixel coordinate for the icon
             graphicItem:SetTexturePixelCoordinates(GetSmallIconPixelCoordinates(upgrTechId))
 
+            if upgrTechId == 3 then -- med spam button
+
+                self.medspamintervalText = GUIManager:CreateTextItem()
+                self.medspamintervalText:SetAnchor(GUIItem.Middle, GUIItem.Center)
+                self.medspamintervalText:SetFontName(ns2d_GUIMarineBuyMenu.kFont)
+                self.medspamintervalText:SetTextAlignmentX(GUIItem.Align_Center)
+                self.medspamintervalText:SetTextAlignmentY(GUIItem.Align_Center)
+                self.medspamintervalText:SetText(""..RoomManager.settings.currentMedSpamInterval)
+                self.medspamintervalText:SetFontIsBold(true)
+                self.medspamintervalText:SetColor(ns2d_GUIMarineBuyMenu.kCloseButtonColor)
+                graphicItem:AddChild(self.medspamintervalText)
+            end
+
             local graphicItemActive = GUIManager:CreateGraphicItem()
             graphicItemActive:SetSize(ns2d_GUIMarineBuyMenu.kSelectorSize)          
             graphicItemActive:SetPosition(Vector(selectorPosX, -ns2d_GUIMarineBuyMenu.kSelectorSize.y / 2, 0))
@@ -409,6 +422,8 @@ function ns2d_GUIMarineBuyMenu:SendKeyEvent(key, down)
     
 end
 
+kMaxMedSpamInterval = 1100
+
 function ns2d_GUIMarineBuyMenu:_HandleItemClicked(mouseX, mouseY)
         
         for i, item in ipairs(self.itemButtons) do
@@ -421,6 +436,10 @@ function ns2d_GUIMarineBuyMenu:_HandleItemClicked(mouseX, mouseY)
                     Shared.ConsoleCommand("catpack")
                 elseif item.UpgrTechId == 2 then                             // nanoshield
                     Shared.ConsoleCommand("nanoshield")
+                elseif item.UpgrTechId == 3 then                             // medspam
+                    RoomManager.settings.currentMedSpamInterval = (RoomManager.settings.currentMedSpamInterval + 100) % kMaxMedSpamInterval
+                    self.medspamintervalText:SetText(""..RoomManager.settings.currentMedSpamInterval)
+                    Shared.ConsoleCommand("medspaminterval "..RoomManager.settings.currentMedSpamInterval)
                 elseif item.UpgrTechId >= 4 and item.UpgrTechId <= 7 then    // a0-a3
                     local a = item.UpgrTechId - 4
                     Shared.ConsoleCommand("a"..a)

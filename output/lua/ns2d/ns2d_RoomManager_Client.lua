@@ -2,6 +2,7 @@
 Script.Load("lua/ns2d/ns2d_RoomManager.lua")
 
 RoomManager.rooms = { }
+RoomManager.settings = { currentMedSpamInterval = 0 }
 
 ----------------------------[ GROUPS ]---------------------------------------------------------
 
@@ -29,7 +30,7 @@ function RoomManager:PlayerLeftGroup( playerId, groupId )
 		self.playersInGroup[groupId][playerId] = nil
 
 		-- if #group == 0, delete group
-		if #(self.playersInGroup[groupId]) == 0 then
+		if next(self.playersInGroup[groupId]) == nil then
 			self.playersInGroup[groupId] = nil
 		end
 

@@ -55,14 +55,13 @@ local function OnRoomBots(client, count, teamNr)
     
         local bot = gServerBots[index]
         if bot then
-            if not bot.bot_userId then
+            if not bot.client.bot_userId then
                 bot.client.bot_userId = bot_id_counter
                 bot_id_counter = bot_id_counter + 1
             end
-            --if not bot:GetPlayer().roomId then
-                -- assign the room to the new bots.
-                --bot:GetPlayer().roomId = roomId
-            --end
+            if not bot.client.initialGroup then
+                bot.client.initialGroup = grpId
+            end
         end
     end
 
