@@ -2,6 +2,7 @@
 Script.Load("lua/ns2d/ns2d_RoomManager.lua")
 
 RoomManager.rooms = { }
+RoomManager.groupSettings = { InstaRespawn=false }
 RoomManager.settings = { currentMedSpamInterval = 0 }
 
 ----------------------------[ GROUPS ]---------------------------------------------------------
@@ -76,19 +77,26 @@ local function OnAddRoom( message )
 end
 Client.HookNetworkMessage( "RoomAddRoom", OnAddRoom )
 
+local function OnSetInstaRespawn( message )
+	RoomManager.groupSettings.InstaRespawn = message.InstaRespawn
+	-- update UI:
+	RoomSpawnUI_UpdateInstaRespawnButton(RoomManager.groupSettings.InstaRespawn)
+end
+Client.HookNetworkMessage( "OnSetInstaRespawn", OnSetInstaRespawn )
+
 ------------------------------[ LOGIC ]-----------------------------------------------------------
 
 
 ------------------------------[ SETTINGS ]--------------------------------------------------------
 
-local function OnSetMedSpamInterval( time )
+local function OnConsoleSetMedSpamInterval( time )
 	Client.SendNetworkMessage("RoomMedSpamInterval", { Time = time }, true)
 end
 
-Event.Hook("Console_medspaminterval", OnSetMedSpamInterval)
+Event.Hook("Console_medspaminterval", OnConsoleSetMedSpamInterval)
 
-local function OnSetInstaRespawn( b )
+local function OnConsoleSetInstaRespawn( b )
 	Client.SendNetworkMessage("SetInstaRespawn", { InstaRespawn = b }, true)
 end
 
-Event.Hook("Console_instarespawn", OnSetInstaRespawn)
+Event.Hook("Console_instarespawn", OnConsoleSetInstaRespawn)

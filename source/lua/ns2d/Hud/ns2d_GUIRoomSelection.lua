@@ -61,6 +61,42 @@ function RoomSpawnUI_Initialize(self)
     groupsHeading:SetPosition(Vector(0, 10, 0))
     self.groupContent:AddChild(groupsHeading)
 
+    -- button for InstaRespawn
+
+    local instaRespawnDescrText = GUIManager:CreateTextItem()
+    instaRespawnDescrText:SetFontName(Fonts.kAgencyFB_Medium)
+    instaRespawnDescrText:SetFontIsBold(false)
+    instaRespawnDescrText:SetAnchor(GUIItem.Left, GUIItem.Top)
+    instaRespawnDescrText:SetPosition(Vector(0, groupsHeading:GetPosition().y + groupsHeading:GetSize().y + 12, 0))
+    instaRespawnDescrText:SetTextAlignmentX(GUIItem.Align_Center)
+    instaRespawnDescrText:SetTextAlignmentY(GUIItem.Align_Center)
+    instaRespawnDescrText:SetColor(Color(kAlienFontColor))
+    instaRespawnDescrText:SetText("Insta Respawn:")
+    self.RoomSpawnUI_cmdNewGroup:AddChild(instaRespawnDescrText)
+
+    self.RoomSpawnUI_cmdInstaRespawn = GUIManager:CreateGraphicItem()
+    self.RoomSpawnUI_cmdInstaRespawn:SetSize(GUIScale( Vector(35, 20, 0) ))
+    self.RoomSpawnUI_cmdInstaRespawn:SetAnchor(GUIItem.Left, GUIItem.Center)
+    self.RoomSpawnUI_cmdInstaRespawn:SetPosition(Vector(instaRespawnDescrText:GetPosition().x + instaRespawnDescrText:GetSize().x + 20, instaRespawnDescrText:GetPosition().y + instaRespawnDescrText:GetSize().y / 2, 0))
+    self.RoomSpawnUI_cmdInstaRespawn:SetTexture(roomTexture)
+    self.RoomSpawnUI_cmdInstaRespawn:SetTexturePixelCoordinates(6 * 80, 0, 7 * 80, 80)
+    self.groupContent:AddChild(self.RoomSpawnUI_cmdInstaRespawn)
+
+    self.InstaRespawnText = GUIManager:CreateTextItem()
+    self.InstaRespawnText:SetFontName(Fonts.kAgencyFB_Medium)
+    self.InstaRespawnText:SetFontIsBold(true)
+    self.InstaRespawnText:SetAnchor(GUIItem.Center, GUIItem.Center)
+    self.InstaRespawnText:SetPosition(Vector(1, 5, 0))
+    self.InstaRespawnText:SetTextAlignmentX(GUIItem.Align_Center)
+    self.InstaRespawnText:SetTextAlignmentY(GUIItem.Align_Center)
+    self.InstaRespawnText:SetScale(GUIScale(Vector(1, 1, 1)))
+    self.InstaRespawnText:SetColor(kAlienFontColor)
+    self.InstaRespawnText:SetText("Off")
+
+    self.RoomSpawnUI_cmdInstaRespawn:AddChild(self.InstaRespawnText)
+
+    -----------------------------
+
     self.RoomSpawnUI_cmdNewGroup = GUIManager:CreateGraphicItem()
     self.RoomSpawnUI_cmdNewGroup:SetSize(GUIScale( Vector(160, 46, 0) ))
     self.RoomSpawnUI_cmdNewGroup:SetAnchor(GUIItem.Center, GUIItem.Bottom)
@@ -322,7 +358,7 @@ function RoomSpawnUI_Update(self, deltaTime)
     end
 
     -- Align Group Panels Y:
-    local locY = GUIScale(50)
+    local locY = self.InstaRespawnText:GetPosition().y + GUIScale(50)
     local offY = GUIScale(12)
     for grpId, grpPanel in pairs(self.RoomSpawnUI_groupPanels) do
         self.RoomSpawnUI_groupPanels[grpId].Panel:SetPosition(Vector(4, locY, 0))
@@ -376,6 +412,13 @@ function RoomSpawnUI_HandleItemClicked(self, mouseX, mouseY)
     if RoomSpawnUI_GetIsMouseOver(self, self.RoomSpawnUI_cmdNewGroup) then
         Client.SendNetworkMessage( "RoomJoinGroup", { GroupId = -1 } , true )
         return true, false
+    elseif RoomSpawnUI_GetIsMouseOver(self, self.RoomSpawnUI_cmdInstaRespawn) then
+        local b = 1
+        if groupSettings.InstaRespawn == 1 then
+            b = 0
+        end
+        Client.SendNetworkMessage("SetInstaRespawn", { InstaRespawn = b }, true)
+        return true, false
     end
         
     for i, item in ipairs(self.RoomSpawnUI_roomButtons) do
@@ -406,4 +449,13 @@ function RoomSpawnUI_HandleItemClicked(self, mouseX, mouseY)
 
     return false, false
     
+end
+
+function RoomSpawnUI_UpdateInstaRespawnButton( b )
+    if not b then
+        self.InstaRespawnText:SetText("Off")
+    else
+        self.InstaRespawnText:SetText("On")
+    end
+
 end

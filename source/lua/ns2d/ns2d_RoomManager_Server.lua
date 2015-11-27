@@ -176,7 +176,9 @@ function RoomManager:JoinGroup(client, groupId)
 	Server.SendNetworkMessage("RoomPlayerJoinedGroup", { PlayerId = playerId, GroupId = groupId, PlayerName = client:GetControllingPlayer():GetName() }, true)
 
 	-- send all upgrades from that grp:
-	self:SendAllTechTreeUpgrades(playerId, groupId)
+	self:SendAllTechTreeUpgrades(client, groupId)
+	-- send group specific settings to player
+	self:SendGroupSettings(client, groupId)
 
 	Shared.Message("SERVER: Player["..playerId.."] joined Group #"..groupId)
 
@@ -313,6 +315,12 @@ end
 
 Server.HookNetworkMessage( "RoomMedSpamInterval", OnSetMedSpamInterval )
 
+local function SendToGroup(grpId, messageId, message)
+	for pId, clnt in pairs(self.playersInGroup[grpId]) do
+	   Server.SendNetworkMessage(clnt, messageId, message, true)
+	end
+end
+
 local function OnSetInstaRespawn(client, message)
     local playerId = client:GetUserId()
 	local groupId = RoomManager:GetGroupFromPlayer(playerId)
@@ -320,6 +328,7 @@ local function OnSetInstaRespawn(client, message)
 	if groupId ~= -1 then
 		RoomManager.settingsOfGroup[groupId].InstaRespawn=message.InstaRespawn
         Shared.Message("SERVER: Set insta respawn for group["..groupId.."] to "..message.InstaRespawn)
+        SendToGroup(grpId, "OnSetInstaRespawn", { InstaRespawn=message.InstaRespawn })
 	end
 end
 
@@ -419,18 +428,19 @@ function RoomManager:OnPlayerJoinedTeam(player)
 		playerId = owner:GetUserId()
 		grpId = self:GetGroupFromPlayer(playerId)
 
-		self:SendAllTechTreeUpgrades(playerId, grpId)
+		self:SendAllTechTreeUpgrades(owner, grpId)
 	end
 end
 
-function RoomManager:SendAllTechTreeUpgrades(playerId, grpId)
+function RoomManager:SendAllTechTreeUpgrades(clnt, grpId)
 	if grpId == -1 then	return end
 
-	for pId, clnt in pairs(self.playersInGroup[grpId]) do
+	--for pId, clnt in pairs(self.playersInGroup[grpId]) do
 
-		local player = clnt:GetControllingPlayer()
+		--local player = clnt:GetControllingPlayer()
+		local player = clnt
 
-		--player:GetTeam():SendTechTreeBase(player) -- send 'empty' tech tree
+		-- --player:GetTeam():SendTechTreeBase(player) -- send 'empty' tech tree
 
 		for a=1, 3, 1 do
 			Server.SendNetworkMessage(player, "TechNodeUpdate", BuildTechNodeUpgradeMessage(GetTechIdForArmorLevel(a), (a <= self.upgradesOfGroup[grpId].ArmorLevel)), true)
@@ -442,7 +452,13 @@ function RoomManager:SendAllTechTreeUpgrades(playerId, grpId)
 			Server.SendNetworkMessage(player, "TechNodeUpdate", BuildTechNodeUpgradeMessage(kBioMassTechIds[b], (b <= self.upgradesOfGroup[grpId].BiomassLevel)), true)
 		end
 
-	end
+	--end
+end
+
+function RoomManager:SendGroupSettings(clnt, grpId)
+	if grpId == -1 then	return end
+
+	Server.SendNetworkMessage(clnt, "OnSetInstaRespawn", { InstaRespawn=self.settingsOfGroup[grpId].InstaRespawn }, true)
 end
 
 -------------------------------------[ HELPER FUNCTIONS ] --------------------------------------------------------
